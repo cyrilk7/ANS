@@ -1,8 +1,6 @@
 import 'dart:convert';
-
-import 'package:flutter/widgets.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:ashesi_navigation_app/pages/map_input.dart';
+import 'package:ashesi_navigation_app/models/location_model.dart';
+import 'package:ashesi_navigation_app/pages/search_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -17,9 +15,54 @@ class Map extends StatefulWidget {
 }
 
 class _MapState extends State<Map> {
-  final start = TextEditingController();
-  final end = TextEditingController();
-  bool isVisible = false;
+  late Location startLocation;
+  late Location endLocation;
+
+  void navigateAndSelectLocations(BuildContext context) async {
+    final userData = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SearchLocation(),
+      ),
+    );
+
+    if (userData != null) {
+      setState(() {
+        startLocation = userData['start'];
+        endLocation = userData['end'];
+      });
+
+      findRoute(startLocation.latitude, startLocation.longitude,
+          endLocation.latitude, endLocation.longitude);
+    }
+  }
+
+  void findRoute(double latitude1, double longitude1, double latitude2,
+      double longitude2) async {
+    var v1 = latitude1;
+    var v2 = longitude1;
+    var v3 = latitude2;
+    var v4 = longitude2;
+
+    var url = Uri.parse(
+        'http://router.project-osrm.org/route/v1/foot/$v2,$v1;$v4,$v3?steps=true&annotations=true&geometries=geojson&overview=full');
+    var response = await http.get(url);
+    print(response.body);
+    setState(() {
+      routpoints = [];
+      var ruter =
+          jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
+      for (int i = 0; i < ruter.length; i++) {
+        var reep = ruter[i].toString();
+        reep = reep.replaceAll("[", "");
+        reep = reep.replaceAll("]", "");
+        var lat1 = reep.split(',');
+        var long1 = reep.split(",");
+        routpoints.add(LatLng(double.parse(lat1[1]), double.parse(long1[0])));
+      }
+      print(routpoints);
+    });
+  }
 
   List<LatLng> routpoints = [LatLng(5.759221, -0.220316)];
 
@@ -29,7 +72,7 @@ class _MapState extends State<Map> {
       FlutterMap(
         options: MapOptions(
           initialCenter: routpoints[0],
-          initialZoom: 16,
+          initialZoom: 17,
         ),
         children: [
           TileLayer(
@@ -45,40 +88,32 @@ class _MapState extends State<Map> {
         ],
       ),
       Positioned(
-        bottom: 20,
+        top: 60,
+        left: 20,
         right: 20,
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[500]),
-            onPressed: () async {
-
-              var v1 = 5.75848;
-              var v2 = -0.22052;
-              var v3 = 5.75897;
-              var v4 = -0.22010;
-
-              var url = Uri.parse(
-                  'http://router.project-osrm.org/route/v1/foot/$v2,$v1;$v4,$v3?steps=true&annotations=true&geometries=geojson&overview=full');
-              var response = await http.get(url);
-              print(response.body);
-              setState(() {
-                routpoints = [];
-                var ruter = jsonDecode(response.body)['routes'][0]['geometry']
-                    ['coordinates'];
-                for (int i = 0; i < ruter.length; i++) {
-                  var reep = ruter[i].toString();
-                  reep = reep.replaceAll("[", "");
-                  reep = reep.replaceAll("]", "");
-                  var lat1 = reep.split(',');
-                  var long1 = reep.split(",");
-                  routpoints.add(
-                      LatLng(double.parse(lat1[1]), double.parse(long1[0])));
-                }
-                isVisible = !isVisible;
-                print(routpoints);
-              });
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Select location',
+              prefixIcon: const Icon(Icons.gps_fixed,
+                  color: Color.fromARGB(255, 170, 59, 62)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            onTap: () {
+              navigateAndSelectLocations(context);
             },
-            child: Text('Press')),
-      )
+          ),
+        ),
+      ),
     ]);
   }
 }
