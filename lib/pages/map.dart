@@ -1,12 +1,11 @@
-import 'dart:convert';
-import 'package:ashesi_navigation_app/models/location_model.dart';
+import 'package:ashesi_navigation_app/controllers/route_controller.dart';
 import 'package:ashesi_navigation_app/pages/menu.dart';
 import 'package:ashesi_navigation_app/pages/search_location.dart';
+import 'package:ashesi_navigation_app/providers/location_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:http/http.dart' as http;
-// import 'package:webview_flutter/webview_flutter.dart';
+import 'package:provider/provider.dart';
 
 class Map extends StatefulWidget {
   const Map({super.key});
@@ -16,60 +15,54 @@ class Map extends StatefulWidget {
 }
 
 class _MapState extends State<Map> {
-  late Location startLocation;
-  late Location endLocation;
+  late RouteController _routeController;
+  List<LatLng> routpoints = [const LatLng(5.759221, -0.220316)];
 
-  void navigateAndSelectLocations(BuildContext context) async {
-    final userData = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SearchLocation(),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _routeController = RouteController();
+  }
 
-    if (userData != null) {
-      setState(() {
-        startLocation = userData['start'];
-        endLocation = userData['end'];
-      });
-
-      findRoute(startLocation.latitude, startLocation.longitude,
-          endLocation.latitude, endLocation.longitude);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final locationProvider = Provider.of<LocationProvider>(context);
+    if (locationProvider.startLocation != null &&
+        locationProvider.endLocation != null) {
+      _fetchRoute(
+        locationProvider.startLocation!.latitude,
+        locationProvider.startLocation!.longitude,
+        locationProvider.endLocation!.latitude,
+        locationProvider.endLocation!.longitude,
+      );
     }
   }
 
-  void findRoute(double latitude1, double longitude1, double latitude2,
-      double longitude2) async {
-    // print(latitude1);
-    var v1 = latitude1;
-    var v2 = longitude1;
-    var v3 = latitude2;
-    var v4 = longitude2;
-
-    var url = Uri.parse(
-        'http://router.project-osrm.org/route/v1/foot/$v2,$v1;$v4,$v3?steps=true&annotations=true&geometries=geojson&overview=full');
-    var response = await http.get(url);
-    // print(response.body);
+  Future<void> _fetchRoute(
+    double latitude1,
+    double longitude1,
+    double latitude2,
+    double longitude2,
+  ) async {
+    final route = await _routeController.findRoute(
+      latitude1,
+      longitude1,
+      latitude2,
+      longitude2,
+    );
     setState(() {
-      routpoints = [];
-      var ruter =
-          jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
-      for (int i = 0; i < ruter.length; i++) {
-        var reep = ruter[i].toString();
-        reep = reep.replaceAll("[", "");
-        reep = reep.replaceAll("]", "");
-        var lat1 = reep.split(',');
-        var long1 = reep.split(",");
-        routpoints.add(LatLng(double.parse(lat1[1]), double.parse(long1[0])));
-      }
-      print(routpoints);
+      routpoints = route;
     });
   }
 
-  List<LatLng> routpoints = [LatLng(5.759221, -0.220316)];
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = Provider.of<LocationProvider>(context);
+    final startLocation = locationProvider.startLocation;
+    final endLocation = locationProvider.endLocation;
+
     return Stack(children: [
       FlutterMap(
         options: MapOptions(
@@ -86,7 +79,25 @@ class _MapState extends State<Map> {
             polylines: [
               Polyline(points: routpoints, color: Colors.blue, strokeWidth: 9)
             ],
-          )
+          ),
+          if (startLocation != null)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: LatLng(startLocation.latitude, startLocation.longitude),
+                  child: const Icon(Icons.location_pin, color: Colors.blue),
+                ),
+              ],
+            ),
+          if (endLocation != null)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: LatLng(endLocation.latitude, endLocation.longitude),
+                  child: const Icon(Icons.location_pin, color: Colors.red),
+                ),
+              ],
+            ),
         ],
       ),
       Positioned(
@@ -114,7 +125,12 @@ class _MapState extends State<Map> {
                     fillColor: Colors.white,
                   ),
                   onTap: () {
-                    navigateAndSelectLocations(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchLocation(),
+                      ),
+                    );
                   },
                 ),
               ),

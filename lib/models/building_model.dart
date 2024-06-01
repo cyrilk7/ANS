@@ -11,7 +11,7 @@ class Building extends StatelessWidget {
   final Location location;
   final List<Room> rooms;
 
-  Building({
+  const Building({super.key, 
     required this.category,
     required this.description,
     required this.name,

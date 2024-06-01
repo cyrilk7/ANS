@@ -1,7 +1,6 @@
-import 'package:latlong2/latlong.dart';
+class RoutePoint {
+  final double latitude;
+  final double longitude;
 
-class RouteModel {
-  List<LatLng> routeCoords;
-
-  RouteModel({required this.routeCoords});
+  RoutePoint({required this.latitude, required this.longitude});
 }

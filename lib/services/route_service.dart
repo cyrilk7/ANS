@@ -1,33 +1,29 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:ashesi_navigation_app/models/route_model.dart';
 import 'package:latlong2/latlong.dart';
 
 class RouteService {
-  Future<RouteModel> fetchRoute(LatLng start, LatLng destination) async {
-    final String apiUrl = 'http://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${destination.longitude},${destination.latitude}?steps=true';
+  Future<List<LatLng>> fetchRoute(
+      double latitude1, double longitude1, double latitude2, double longitude2) async {
+    var v1 = latitude1;
+    var v2 = longitude1;
+    var v3 = latitude2;
+    var v4 = longitude2;
 
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
+    var url = Uri.parse(
+        'http://router.project-osrm.org/route/v1/foot/$v2,$v1;$v4,$v3?steps=true&annotations=true&geometries=geojson&overview=full');
+    var response = await http.get(url);
 
-      if (response.statusCode == 200) {
-        final decodedData = json.decode(response.body);
-        final routeCoords = _extractRouteCoords(decodedData);
-        return RouteModel(routeCoords: routeCoords);
-      } else {
-        throw Exception('Failed to fetch route: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error fetching route: $e');
+    var routePoints = <LatLng>[];
+    var ruter = jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
+    for (int i = 0; i < ruter.length; i++) {
+      var reep = ruter[i].toString();
+      reep = reep.replaceAll("[", "");
+      reep = reep.replaceAll("]", "");
+      var lat1 = reep.split(',');
+      var long1 = reep.split(",");
+      routePoints.add(LatLng(double.parse(lat1[1]), double.parse(long1[0])));
     }
-  }
-
-  List<LatLng> _extractRouteCoords(Map<String, dynamic> decodedData) {
-    final List<dynamic> routeSteps = decodedData['routes'][0]['legs'][0]['steps'];
-    final List<LatLng> routeCoords = routeSteps.map((step) {
-      final List<dynamic> maneuverLocation = step['maneuver']['location'];
-      return LatLng(maneuverLocation[1], maneuverLocation[0]);
-    }).toList();
-    return routeCoords;
+    return routePoints;
   }
 }

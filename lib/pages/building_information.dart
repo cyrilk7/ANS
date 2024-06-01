@@ -306,7 +306,16 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
                               const Color.fromARGB(255, 170, 60, 63),
                           foregroundColor: Colors.white,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchLocation(
+                                chosenDestination: widget.building.location,
+                              ),
+                            ),
+                          );
+                        },
                         child: const Text(
                           "Get Directions",
                           style: TextStyle(

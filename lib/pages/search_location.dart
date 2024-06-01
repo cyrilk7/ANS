@@ -1,6 +1,8 @@
 import 'package:ashesi_navigation_app/models/location_model.dart';
+import 'package:ashesi_navigation_app/providers/location_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
 class SearchLocation extends StatefulWidget {
   final Location? chosenDestination;
@@ -95,6 +97,9 @@ class _SearchLocationState extends State<SearchLocation> {
     if (widget.chosenDestination != null) {
       endLocation = widget.chosenDestination;
       endLocationController.text = widget.chosenDestination!.name;
+      final locationProvider =
+        Provider.of<LocationProvider>(context, listen: false);
+      locationProvider.setEndLocation(endLocation!);
     }
     filteredLocations = previousLocations;
     startLocationController.addListener(onStartLocationChanged);
@@ -133,28 +138,31 @@ class _SearchLocationState extends State<SearchLocation> {
   }
 
   void selectLocation(Location location) {
+    final locationProvider =
+        Provider.of<LocationProvider>(context, listen: false);
     setState(() {
       if (isSelectingStart) {
         startLocation = location;
         startLocationController.text = location.name;
+        locationProvider.setStartLocation(location);
       } else {
         endLocation = location;
         endLocationController.text = location.name;
+        locationProvider.setEndLocation(location);
       }
       isFocused = false;
       filteredLocations = previousLocations;
-
-      if (startLocation != null && endLocation != null) {
-        if (widget.chosenDestination == null) {
-          Navigator.pop(context, {'start': startLocation, 'end': endLocation});
-        } else {
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => ()))
-          Navigator.popUntil(context, ModalRoute.withName('/'));
-        }
-      } else {
-        filteredLocations = previousLocations;
-      }
     });
+
+    // Navigate back to the previous screen (Map page)
+    if (startLocation != null && endLocation != null) {
+      if (widget.chosenDestination == null) {
+        Navigator.pop(context);
+      } else {
+        locationProvider.setSelectedIndex(0);
+        Navigator.popUntil(context, ModalRoute.withName('/'));
+      }
+    }
   }
 
   @override
@@ -187,7 +195,7 @@ class _SearchLocationState extends State<SearchLocation> {
                 ),
               ),
             ),
-            if (startLocation != null) ...[
+            if (startLocation != null || widget.chosenDestination != null) ...[
               const SizedBox(
                 height: 20,
               ),
