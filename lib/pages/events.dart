@@ -10,8 +10,8 @@ class Events extends StatefulWidget {
 class _EventsState extends State<Events> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Page 2'),
+    return const Scaffold(
+      body: Text('Events'),
     );
   }
 }
