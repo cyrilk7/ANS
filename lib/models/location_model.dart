@@ -8,4 +8,12 @@ class Location {
     required this.latitude,
     required this.longitude,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'latitude': latitude,
+      'longitude': longitude,
+    };
+  }
 }

@@ -1,24 +1,31 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
+
 import 'package:ashesi_navigation_app/models/location_model.dart';
 import 'package:ashesi_navigation_app/models/room_model.dart';
 import 'package:ashesi_navigation_app/pages/building_information.dart';
-import 'package:flutter/material.dart';
+
 
 class Building extends StatelessWidget {
   final String category;
   final String description;
   final String name;
   final String history;
+  final String imagePath;
   final Location location;
   final List<Room> rooms;
+  final String categoryIconPath;
 
-  const Building({super.key, 
-    required this.category,
-    required this.description,
-    required this.name,
-    required this.history,
-    required this.location,
-    required this.rooms,
-  });
+  const Building(
+      {super.key,
+      required this.category,
+      required this.description,
+      required this.name,
+      required this.history,
+      required this.location,
+      required this.rooms,
+      required this.imagePath,
+      required this.categoryIconPath});
 
   factory Building.fromJson(Map<String, dynamic> json) {
     List<dynamic> roomsJson = json['rooms'];
@@ -33,10 +40,24 @@ class Building extends StatelessWidget {
       category: json['category'],
       description: json['description'],
       name: json['name'],
+      imagePath: json['image_path'],
       history: json['history'],
+      categoryIconPath: json['categoryImage'],
       location: location,
       rooms: rooms,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'category': category,
+      'description': description,
+      'history': history,
+      'location': location.toJson(),
+      'image_path': imagePath,
+      'rooms': rooms.map((room) => room.toJson()).toList(),
+    };
   }
 
   @override
@@ -65,7 +86,7 @@ class Building extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(5),
                     child: Image.asset(
-                      "assets/images/building_template.jpeg",
+                      imagePath,
                       fit: BoxFit.cover,
                       width: 115,
                       height: double.infinity,
@@ -84,18 +105,22 @@ class Building extends StatelessWidget {
                               height: 20,
                               width: 20,
                               child: Image.asset(
-                                  "assets/images/academic_category.png",
+                                  categoryIconPath,
                                   fit: BoxFit.cover),
                             ),
                             const SizedBox(
                               width: 5,
                             ),
-                            Text(
-                              category.toUpperCase(),
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 114, 114, 119),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                            SizedBox(
+                              width: 160,
+                              child: Text(
+                                category.toUpperCase(),
+                                maxLines: 2,
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 114, 114, 119),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
                               ),
                             )
                           ],
@@ -119,7 +144,7 @@ class Building extends StatelessWidget {
                         Text(
                           description,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
+                          maxLines: 2,
                           style: const TextStyle(
                             color: Color.fromARGB(255, 114, 114, 119),
                             fontSize: 10,

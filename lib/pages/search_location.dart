@@ -1,8 +1,14 @@
+import 'dart:convert';
+
+import 'package:ashesi_navigation_app/controllers/building_controller.dart';
+import 'package:ashesi_navigation_app/models/building_model.dart';
 import 'package:ashesi_navigation_app/models/location_model.dart';
 import 'package:ashesi_navigation_app/providers/location_provider.dart';
 import 'package:flutter/material.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchLocation extends StatefulWidget {
   final Location? chosenDestination;
@@ -15,6 +21,29 @@ class SearchLocation extends StatefulWidget {
 
 class _SearchLocationState extends State<SearchLocation> {
   Position? userPosition;
+  BuildingController buildingController =
+      BuildingController(); // Instantiate the controller
+  List<Building> buildings =
+      []; // List to hold buildings fetched from the controller
+  List<Building> previousLocations = [];
+  List<Building> filteredLocations = [];
+  bool isLoading = true;
+  bool isSelectingStart = true;
+  bool isFocused = false;
+
+  TextEditingController startLocationController = TextEditingController();
+  TextEditingController endLocationController = TextEditingController();
+
+  Location? startLocation;
+  Location? endLocation;
+
+  void fetchBuildings() async {
+    List<Building> fetchedBuildings = await buildingController.fetchBuildings();
+    setState(() {
+      buildings = fetchedBuildings;
+      isLoading = false;
+    });
+  }
 
   void getCurrentLocation() async {
     Position pos = await determinePosition();
@@ -47,58 +76,16 @@ class _SearchLocationState extends State<SearchLocation> {
     return await Geolocator.getCurrentPosition();
   }
 
-  List<Location> previousLocations = [
-    Location(
-        name: 'Entrepreneurship, Innovation & Service Centre',
-        latitude: 5.75886,
-        longitude: -0.21748),
-    Location(
-        name: 'Engineering Workshop', latitude: 5.75905, longitude: -0.21769),
-  ];
-
-  List<Location> allLocations = [
-    Location(
-        name: 'Entrepreneurship, Innovation & Service Centre',
-        latitude: 5.75886,
-        longitude: -0.21748),
-    Location(
-        name: 'Engineering Workshop', latitude: 5.75905, longitude: -0.21769),
-    Location(
-        name: 'Natembea Health Centre', latitude: 5.75927, longitude: -0.21803),
-    Location(
-        name: 'Fabrication Lab (Fab Lab)',
-        latitude: 5.75948,
-        longitude: -0.21829),
-    Location(name: 'Sports Centre', latitude: 5.75785, longitude: -0.21715),
-    Location(name: 'Nutor Hall', latitude: 5.75902, longitude: -0.21967),
-    //Check coordinates for engineering building
-    Location(
-        name: 'King Engineering Building',
-        latitude: 5.75955,
-        longitude: -0.21934),
-    Location(name: 'Warren Library', latitude: 5.75976, longitude: -0.21979),
-    Location(name: 'Apt Hall', latitude: 5.75954, longitude: -0.21982),
-    Location(name: 'Ashesi Bookshop', latitude: 5.75915, longitude: -0.21994),
-  ];
-
-  List<Location> filteredLocations = [];
-  bool isSelectingStart = true;
-  bool isFocused = false;
-
-  TextEditingController startLocationController = TextEditingController();
-  TextEditingController endLocationController = TextEditingController();
-
-  Location? startLocation;
-  Location? endLocation;
-
   @override
   void initState() {
     super.initState();
+    fetchBuildings();
+    // loadRecentSearches();
     if (widget.chosenDestination != null) {
       endLocation = widget.chosenDestination;
       endLocationController.text = widget.chosenDestination!.name;
       final locationProvider =
-        Provider.of<LocationProvider>(context, listen: false);
+          Provider.of<LocationProvider>(context, listen: false);
       locationProvider.setEndLocation(endLocation!);
     }
     filteredLocations = previousLocations;
@@ -120,8 +107,8 @@ class _SearchLocationState extends State<SearchLocation> {
     setState(() {
       filteredLocations = query.isEmpty
           ? previousLocations
-          : allLocations
-              .where((location) => location.name.toLowerCase().contains(query))
+          : buildings
+              .where((building) => building.name.toLowerCase().contains(query))
               .toList();
     });
   }
@@ -131,26 +118,27 @@ class _SearchLocationState extends State<SearchLocation> {
     setState(() {
       filteredLocations = query.isEmpty
           ? previousLocations
-          : allLocations
-              .where((location) => location.name.toLowerCase().contains(query))
+          : buildings
+              .where((building) => building.name.toLowerCase().contains(query))
               .toList();
     });
   }
 
-  void selectLocation(Location location) {
+  void selectLocation(Building building) {
     final locationProvider =
         Provider.of<LocationProvider>(context, listen: false);
     setState(() {
       if (isSelectingStart) {
-        startLocation = location;
-        startLocationController.text = location.name;
-        locationProvider.setStartLocation(location);
+        startLocation = building.location;
+        startLocationController.text = building.location.name;
+        locationProvider.setStartLocation(building.location);
       } else {
-        endLocation = location;
-        endLocationController.text = location.name;
-        locationProvider.setEndLocation(location);
+        endLocation = building.location;
+        endLocationController.text = building.location.name;
+        locationProvider.setEndLocation(building.location);
       }
       isFocused = false;
+      // updateRecentSearches(building);
       filteredLocations = previousLocations;
     });
 
@@ -165,119 +153,218 @@ class _SearchLocationState extends State<SearchLocation> {
     }
   }
 
+  // Future<void> updateRecentSearches(Building matchingBuilding) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     previousLocations.removeWhere(
+  //         (building) => building.location == matchingBuilding.location);
+  //     previousLocations.insert(0, matchingBuilding);
+  //     if (previousLocations.length > 10) {
+  //       previousLocations.removeLast();
+  //     }
+  //   });
+
+  //   List<String> recentSearches = previousLocations
+  //       .map((building) => jsonEncode(building.toJson()))
+  //       .toList();
+
+  //   await prefs.setStringList('recent_searches', recentSearches);
+  // }
+
+  // Future<void> loadRecentSearches() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs.clear();
+
+  //   List<String>? recentSearches = prefs.getStringList('recent_searches');
+  //   if (recentSearches != null) {
+  //     setState(() {
+  //       previousLocations = recentSearches.map((search) {
+  //         var decoded = jsonDecode(search);
+  //         return Building.fromJson(decoded);
+  //       }).toList();
+  //     });
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Enter Location'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            TextField(
-              onTap: () {
-                setState(() {
-                  isSelectingStart = true;
-                  isFocused = true;
-                });
-              },
-              controller: startLocationController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[200],
-                prefixIcon: const Icon(Icons.search,
-                    color: Color.fromARGB(255, 170, 59, 62)),
-                hintText: 'Enter a starting point',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            if (startLocation != null || widget.chosenDestination != null) ...[
-              const SizedBox(
-                height: 20,
-              ),
-              TextField(
-                onTap: () {
-                  setState(() {
-                    isSelectingStart = false;
-                    isFocused = true;
-                  });
-                },
-                controller: endLocationController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  prefixIcon: const Icon(Icons.search,
-                      color: Color.fromARGB(255, 170, 59, 62)),
-                  hintText: 'Enter destination location',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide.none,
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      Material(
+                        elevation: 4,
+                        shadowColor: Colors.black,
+                        borderRadius: BorderRadius.circular(10),
+                        child: TextField(
+                          onTap: () {
+                            setState(() {
+                              isSelectingStart = true;
+                              isFocused = true;
+                            });
+                          },
+                          controller: startLocationController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color.fromARGB(255, 248, 248, 248),
+                            prefixIcon: const Icon(Icons.circle,
+                                color: Color.fromARGB(255, 170, 59, 62)),
+                            hintText: 'Enter a starting point',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (startLocation != null ||
+                          widget.chosenDestination != null) ...[
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Material(
+                          elevation: 4,
+                          shadowColor: Colors.black,
+                          borderRadius: BorderRadius.circular(10),
+                          child: TextField(
+                            onTap: () {
+                              setState(() {
+                                isSelectingStart = false;
+                                isFocused = true;
+                              });
+                            },
+                            controller: endLocationController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor:
+                                  const Color.fromARGB(255, 248, 248, 248),
+                              prefixIcon: const Icon(Icons.circle,
+                                  color: Color.fromARGB(255, 170, 59, 62)),
+                              hintText: 'Enter destination location',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-              ),
-            ],
-            if (isFocused && startLocationController.text.isEmpty) ...[
-              const SizedBox(
-                height: 20,
-              ),
-              GestureDetector(
-                onTap: () {
-                  getCurrentLocation();
-                },
-                child: const Row(
-                  children: [
-                    Icon(Icons.location_pin,
-                        color: Color.fromARGB(255, 170, 59, 62)),
-                    SizedBox(width: 5), // Adjust spacing between icon and text
-                    Text(
-                      'Current location',
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 170, 59, 62),
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600),
+                const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Color.fromARGB(
+                            255, 242, 242, 242), // Set the color of the border
+                        width: 15.0, // Set the width of the border
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ],
-            if (isFocused &&
-                (startLocationController.text.isEmpty ||
-                    endLocationController.text.isEmpty)) ...[
-              const SizedBox(
-                height: 20,
-              ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'RECENT SEARCHES',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
-            if (isFocused) ...[
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: filteredLocations.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(filteredLocations[index].name),
-                    onTap: () {
-                      selectLocation(filteredLocations[index]);
-                    },
-                  );
-                },
-              ),
-            ]
-          ],
-        ),
-      ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      if (isFocused &&
+                          startLocationController.text.isEmpty) ...[
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            getCurrentLocation();
+                          },
+                          child: const Row(
+                            children: [
+                              Icon(Icons.location_pin,
+                                  color: Color.fromARGB(255, 170, 59, 62)),
+                              SizedBox(
+                                  width:
+                                      5), // Adjust spacing between icon and text
+                              Text(
+                                'Current location',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 170, 59, 62),
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      // if (isFocused &&
+                      //     (startLocationController.text.isEmpty &&
+                      //         endLocationController.text.isEmpty)) ...[
+                      //   const SizedBox(
+                      //     height: 20,
+                      //   ),
+                      //   const Align(
+                      //     alignment: Alignment.centerLeft,
+                      //     child: Text(
+                      //       'RECENT SEARCHES',
+                      //       style: TextStyle(
+                      //         fontSize: 18,
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ],
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                if (isFocused) ...[
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: filteredLocations.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Color.fromARGB(255, 242, 242,
+                                    242), // Set the color of the border
+                                width: 5.0, // Set the width of the border
+                              ),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 19),
+                            child: ListTile(
+                              leading: const Icon(Icons.location_pin, size: 30),
+                              title: Text(filteredLocations[index].name),
+                              subtitle: const Text("Ashesi University"),
+                              onTap: () {
+                                selectLocation(filteredLocations[index]);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ]
+              ],
+            ),
     );
   }
 }

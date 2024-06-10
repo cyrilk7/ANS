@@ -8,4 +8,6 @@ class RouteController {
       double latitude1, double longitude1, double latitude2, double longitude2) async {
     return await _routeService.fetchRoute(latitude1, longitude1, latitude2, longitude2);
   }
+
+  
 }

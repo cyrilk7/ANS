@@ -30,7 +30,7 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
               fit: StackFit.expand,
               children: [
                 Image.asset(
-                  "assets/images/building_template.jpeg",
+                  widget.building.imagePath,
                   fit: BoxFit.cover,
                 ),
                 if (!detailsClicked)
@@ -74,7 +74,7 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
                                           height: 25,
                                           width: 25,
                                           child: Image.asset(
-                                              "assets/images/academic_category.png",
+                                              widget.building.categoryIconPath,
                                               fit: BoxFit.cover),
                                         ),
                                         const SizedBox(
@@ -88,19 +88,23 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
                                             fontSize: 17,
                                           ),
                                         ),
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        const Icon(
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    const Row(
+                                      children: [
+                                        Icon(
                                           size: 25,
                                           Icons.timer,
                                           color:
                                               Color.fromARGB(255, 170, 60, 63),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           width: 10,
                                         ),
-                                        const Text(
+                                        Text(
                                           "7am - 6pm",
                                           style: TextStyle(
                                             color: Colors.white,
@@ -210,7 +214,7 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
                             height: 20,
                             width: 20,
                             child: Image.asset(
-                                "assets/images/academic_category.png",
+                                widget.building.categoryIconPath,
                                 fit: BoxFit.cover),
                           ),
                           const SizedBox(

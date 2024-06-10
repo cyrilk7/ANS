@@ -19,4 +19,13 @@ class Room {
       type: json['type'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'building': building,
+      'capacity': capacity,
+      'room_number': roomNumber,
+      'type': type,
+    };
+  }
 }

@@ -1,4 +1,3 @@
-import 'package:ashesi_navigation_app/controllers/route_controller.dart';
 import 'package:ashesi_navigation_app/pages/buildings.dart';
 import 'package:ashesi_navigation_app/pages/menu.dart';
 import 'package:ashesi_navigation_app/pages/schedule.dart';
@@ -9,11 +8,16 @@ import 'package:ashesi_navigation_app/pages/map.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(
-      create: (_) => LocationProvider(),
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => LocationProvider(),
+        ),
+      ],
+      child: const MyApp(),
     ),
-  ], child: const MyApp()));
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -22,12 +26,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => MyHomePage(),
-        '/menu': (context) => Menu(),
-        '/events': (context) => Events(),
-        '/buildings': (context) => Buildings(),
+        '/': (context) => const MyHomePage(),
+        '/menu': (context) => const Menu(),
+        '/events': (context) => const Events(),
+        '/buildings': (context) => const Buildings(),
       },
     );
   }
@@ -35,15 +40,19 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final int initialIndex;
-  const MyHomePage({this.initialIndex = 0});
+  const MyHomePage({super.key, this.initialIndex = 0});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // int currentIndex = 0;
-  List pages = [Map(), const Events(), const Buildings(), const Schedule()];
+  List pages = [
+    const Map(),
+    const Events(),
+    const Buildings(),
+    const Schedule()
+  ];
 
   final List<String> pageTexts = [
     'Map',
@@ -52,19 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
     'Schedule',
   ];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // currentIndex = widget.initialIndex; // Set initial index
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<LocationProvider>(
       builder: (context, locationProvider, _) {
         int currentIndex = locationProvider.selectedIndex;
         return Scaffold(
-          appBar: currentIndex != 0
+          appBar: currentIndex != 0 && currentIndex != 2
               ? PreferredSize(
                   preferredSize: const Size.fromHeight(130),
                   child: AppBar(

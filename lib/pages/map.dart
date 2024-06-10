@@ -1,4 +1,5 @@
 import 'package:ashesi_navigation_app/controllers/route_controller.dart';
+import 'package:ashesi_navigation_app/models/location_model.dart';
 import 'package:ashesi_navigation_app/pages/menu.dart';
 import 'package:ashesi_navigation_app/pages/search_location.dart';
 import 'package:ashesi_navigation_app/providers/location_provider.dart';
@@ -17,6 +18,9 @@ class Map extends StatefulWidget {
 class _MapState extends State<Map> {
   late RouteController _routeController;
   List<LatLng> routpoints = [const LatLng(5.759221, -0.220316)];
+  bool locationInitialized = false;
+  late Location start;
+  late Location end;
 
   @override
   void initState() {
@@ -30,12 +34,11 @@ class _MapState extends State<Map> {
     final locationProvider = Provider.of<LocationProvider>(context);
     if (locationProvider.startLocation != null &&
         locationProvider.endLocation != null) {
-      _fetchRoute(
-        locationProvider.startLocation!.latitude,
-        locationProvider.startLocation!.longitude,
-        locationProvider.endLocation!.latitude,
-        locationProvider.endLocation!.longitude,
-      );
+      setState(() {
+        locationInitialized = true;
+        start = locationProvider.startLocation!;
+        end = locationProvider.endLocation!;
+      });
     }
   }
 
@@ -55,7 +58,6 @@ class _MapState extends State<Map> {
       routpoints = route;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +86,8 @@ class _MapState extends State<Map> {
             MarkerLayer(
               markers: [
                 Marker(
-                  point: LatLng(startLocation.latitude, startLocation.longitude),
+                  point:
+                      LatLng(startLocation.latitude, startLocation.longitude),
                   child: const Icon(Icons.location_pin, color: Colors.blue),
                 ),
               ],
@@ -164,6 +167,90 @@ class _MapState extends State<Map> {
           ],
         ),
       ),
+      if (locationInitialized) ...[
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: SizedBox(
+              width: double.infinity,
+              child: Card(
+                color: Colors.white,
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Start Location',
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        start.name,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        'End location',
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        end.name,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 55),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                10.0), // Set desired border radius here
+                          ),
+                          backgroundColor:
+                              const Color.fromARGB(255, 170, 60, 63),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () {
+                          _fetchRoute(start.latitude, start.longitude,
+                              end.latitude, end.longitude);
+                          setState(() {
+                            locationInitialized = false;
+                          });
+                        },
+                        child: const Text(
+                          "Start",
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        )
+      ]
     ]);
   }
 }
