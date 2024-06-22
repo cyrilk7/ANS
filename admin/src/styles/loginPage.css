@@ -1,0 +1,22 @@
+.login-container{
+    display: flex;
+    height: 100vh;
+}
+
+.login-container .left{
+    flex-basis: 60%;
+    background-color: #FFF9F9;
+}
+
+.login-container .right{
+    flex-basis: 40%;
+}
+
+.login-container .left h1{
+    color: #AA3C3F;
+    width: 70%;
+    text-align: left;
+    font-style: italic;
+    font-weight: 900;
+}
+
