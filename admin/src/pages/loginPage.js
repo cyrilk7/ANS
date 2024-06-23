@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useAuth from "../hooks/useAuth";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const LoginPage = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const navigate = useNavigate();
+    const { login, setIsAuthenticated } = useAuth();
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -32,6 +34,10 @@ const LoginPage = () => {
             const response = await authController.login(email, password);
             toast.success(response.message);
             setSuccess(response.message);
+            // setIsAuthenticated(true);
+            // localStorage.setItem('token', response.token);
+            login();
+            navigate('/dashboard'); 
 
         } catch (error) {
             setError(error.message);
