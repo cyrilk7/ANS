@@ -139,6 +139,46 @@ def activate_user(token):
     return render_template('set_password.html', token=token)
 
 
+
+@app.route('/users', methods=['POST'])
+def creat_building():
+    data = request.get_json()
+
+    # Check if all required fields are provided
+    required_fields = ['name', 'description', 'category_id', 'latitude', 'longitude']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing required field: {field}'}), 400
+    
+    name = data['name']
+    latitude = data['latitude']
+    longitude = data['longitude']
+
+        # Check if a building with the same name exists
+    if Building.query.filter_by(name=name).first():
+        return jsonify({'error': 'Building with the same name already exists'}), 400
+
+    # Check if a building with the same latitude and longitude exists
+    if Building.query.filter_by(latitude=latitude, longitude=longitude).first():
+        return jsonify({'error': 'Building with the same coordinates already exists'}), 400
+
+    # Create a new building instance
+    new_building = Building(
+        name=name,
+        description=data.get('description'),
+        historical_information=data.get('historical_information'),
+        latitude=latitude,
+        longitude=longitude,
+        image_path=data.get('image_path'),
+        category_id=data.get('category_id')
+    )
+
+    # Add and commit the new building to the database
+    db.session.add(new_building)
+    db.session.commit()
+
+    return jsonify({'message': 'Building created successfully'}), 201
+
 @app.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
@@ -255,7 +295,7 @@ def set_password():
     user = User.query.filter_by(activation_token=token).first()
     if user:
         user.password_hash = hashed_password
-        user.activation_token = None  # Clear the token after use
+        # user.activation_token = None  # Clear the token after use
         user.status = 'Active'
         db.session.commit()
         return render_template('password_successful.html')
@@ -283,15 +323,16 @@ def login():
     if not user:
         return jsonify({'message': 'Invalid email'}), 401
 
+    # Check if the user is active
+    if user.status != 'Active':
+        return jsonify({'message': 'User account is not active'}), 403
+
     # Verify the password
     if not user.check_password(password):
         return jsonify({'message': 'Invalid password'}), 401
 
-        # Check if the user is active
-    if user.status != 'Active':
-        return jsonify({'message': 'User account is not active'}), 403
     
-    return jsonify({'message': 'Login successful'}), 200
+    return jsonify({'message': 'Login successful',  'token' : user.activation_token}), 200
 
 
 @app.route('/buildings', methods=['GET'])
@@ -322,6 +363,62 @@ def get_buildings():
         results.append(building_info)
 
     return jsonify(results)
+
+
+@app.route('/categories', methods=['GET'])
+def get_categories():
+    categories = BuildingCategory.query.all()
+    results = []
+
+    for category in categories:
+        category_info = {
+            'category_id': category.category_id,
+            'name': category.name
+        }
+        results.append(category_info)
+
+    return jsonify(results), 200
+
+
+@app.route('/buildings', methods=['POST'])
+def create_building():
+    data = request.get_json()
+
+    # Check if all required fields are provided
+    required_fields = ['name', 'description', 'category_id', 'latitude', 'longitude']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing required field: {field}'}), 400
+    
+    name = data['name']
+    latitude = data['latitude']
+    longitude = data['longitude']
+
+        # Check if a building with the same name exists
+    if Building.query.filter_by(name=name).first():
+        return jsonify({'error': 'Building with the same name already exists'}), 400
+
+    # Check if a building with the same latitude and longitude exists
+    if Building.query.filter_by(latitude=latitude, longitude=longitude).first():
+        return jsonify({'error': 'Building with the same coordinates already exists'}), 400
+
+    # Create a new building instance
+    new_building = Building(
+        name=name,
+        description=data.get('description'),
+        historical_information=data.get('history'),
+        latitude=latitude,
+        longitude=longitude,
+        image_path=data.get('image_path'),
+        category_id=data.get('category_id')
+    )
+
+    # Add and commit the new building to the database
+    db.session.add(new_building)
+    db.session.commit()
+
+    return jsonify({'message': 'Building created successfully'}), 201
+
 
 if __name__ == "__main__":
     app.run(debug=True)
