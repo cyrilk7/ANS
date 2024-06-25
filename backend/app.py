@@ -342,6 +342,7 @@ def get_buildings():
 
     for building in buildings:
         building_info = {
+            'building_id': building.building_id,
             'name': building.name,
             'description': building.description,
             'category': building.category.name,
@@ -396,11 +397,11 @@ def create_building():
 
         # Check if a building with the same name exists
     if Building.query.filter_by(name=name).first():
-        return jsonify({'error': 'Building with the same name already exists'}), 400
+        return jsonify({'error': 'Building with the same name already exists'}), 403
 
     # Check if a building with the same latitude and longitude exists
     if Building.query.filter_by(latitude=latitude, longitude=longitude).first():
-        return jsonify({'error': 'Building with the same coordinates already exists'}), 400
+        return jsonify({'error': 'Building with the same coordinates already exists'}), 403
 
     # Create a new building instance
     new_building = Building(
@@ -420,5 +421,33 @@ def create_building():
     return jsonify({'message': 'Building created successfully'}), 201
 
 
+@app.route('/buildings/<int:building_id>', methods=['GET'])
+def get_building(building_id):
+    building = Building.query.filter_by(building_id=building_id).first()
+    if not building:
+        return jsonify({'error': 'Building not found'}), 404
+    
+    building_data = {
+        'building_id': building.building_id,
+        'name': building.name,
+        'description': building.description,
+        'historical_information': building.historical_information,
+        'latitude': building.latitude,
+        'longitude': building.longitude,
+        'image_path': building.image_path,
+        'category': building.category.name if building.category else None,
+        'rooms': [
+                {
+                    'room_number': room.room_number,
+                    'type': room.room_type.name,
+                    'building': room.building.name,
+                    'capacity': room.capacity
+                }
+                for room in building.rooms
+            ]
+    }
+    
+    return jsonify(building_data)
+    
 if __name__ == "__main__":
     app.run(debug=True)
