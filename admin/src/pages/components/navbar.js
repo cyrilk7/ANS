@@ -4,38 +4,48 @@ import dashboard from '../../images/navIcons/dashboard.png';
 import buildings from '../../images/navIcons/buildings.png'
 import events from '../../images/navIcons/events.png'
 import logout from '../../images/navIcons/logout.png'
+import { NavLink, useLocation } from 'react-router-dom';
 
 const NavBar = () => {
-    return ( 
-    <div className="nav-cont">
-        <div className="nav-logo">
-            <div className="nav-img">
-                <img src={logo} alt="" />
-            </div>
-            <h2>Ash<span>Pilot</span></h2>
-        </div>
-
-        <div className="nav-items">
-            <div className="nav-item-row">
-                <img src={dashboard} alt="" />
-                <h3>Dashboard</h3>
-            </div>
-            <div className="nav-item-row">
-                <img src={buildings} alt="" />
-                <h3>Buildings</h3>
-            </div>
-            <div className="nav-item-row">
-                <img src={events} alt="" />
-                <h3>Events</h3>
-            </div>
-        </div>
-
-        <div className="nav-item-row">
-                <img src={logout} alt="" />
-                <h3>Logout</h3>
+    const location = useLocation();
+    const getNavItemClass = (path) => {
+        console.log(location.pathname === path);
+        return location.pathname === path ? 'nav-item-row active' : 'nav-item-row';
+    };
+    return (
+        <div className="nav-cont">
+            <div className="nav-logo">
+                <div className="nav-img">
+                    <img src={logo} alt="" />
+                </div>
+                <h2>Ash<span>Pilot</span></h2>
             </div>
 
-    </div> );
+            <div className="nav-items">
+                <NavLink to="/dashboard" className={getNavItemClass('/dashboard')}>
+                    <img src={dashboard} alt="" />
+                    <h3>Dashboard</h3>
+                </NavLink>
+
+                <NavLink to="/buildings" className={getNavItemClass('/buildings')}>
+                    <img src={buildings} alt="" />
+                    <h3>Buildings</h3>
+                </NavLink>
+
+                <NavLink to="/events" className={getNavItemClass('/events')}>
+                    <img src={events} alt="" />
+                    <h3>Events</h3>
+                </NavLink>
+
+                <NavLink to="/login" className="nav-item-row logout">
+                    <img src={logout} alt="" />
+                    <h3>Logout</h3>
+                </NavLink>
+            </div>
+
+
+
+        </div>);
 }
- 
+
 export default NavBar;

@@ -1,0 +1,53 @@
+.buildings-cont{
+    height: 100vh;
+    display: flex;
+}
+
+.buildings-cont .build-left{
+    height: 100%;
+    width: 21%;
+}
+
+.buildings-cont .build-right{
+    /* background-color: black; */
+    height: 100%;
+    flex-grow: 1;
+    padding: 1.5rem;
+    /* width: 79%; / */
+
+
+}
+
+.buildings-cont .build-right h1{
+    color: #AA3C3F;
+    font-weight: 900;
+    text-align: left;
+}
+
+
+.buildings-cont .build-right h1 span{
+    color: black;
+}
+
+.buildings-cont .build-right .build-title-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.buildings-cont .build-right .build-title-row .build-search-box button{
+    padding: 0.6rem;
+    border: none;
+    background-color: #AA3C3F;
+    color: white;
+    font-weight: 900;
+    border-radius: 7px;
+    
+}
+
+.buildings-cont .build-right .build-title-row .build-search-box input{
+    padding: 0.6rem;
+    width: 13rem;
+    border-radius: 7px;
+    margin-left: 1rem;
+}

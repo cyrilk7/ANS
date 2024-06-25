@@ -32,7 +32,31 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+h1 {
+  font-size: 2em !important;
+}
+
+h3 {
+  font-size: 1.2em !important;
+}
+
+/* Styles for the input when focused */
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: #AA3C3F;
+  box-shadow: 0 0 8px #AA3C3F;
+  outline: none;
+}
+
+textarea:focus{
+  border-color: #AA3C3F;
+  box-shadow: 0 0 8px #AA3C3F;
+  outline: none;
+
 }

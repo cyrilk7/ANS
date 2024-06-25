@@ -1,9 +1,9 @@
-.dashboard-cont{
+.events-cont{
     height: 100vh;
     display: flex;
 }
 
-.dashboard-cont .dash-left{
+.events-cont .events-left{
     height: 100%;
     width: 21%;
 }
