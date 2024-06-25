@@ -9,7 +9,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 const NavBar = () => {
     const location = useLocation();
     const getNavItemClass = (path) => {
-        console.log(location.pathname === path);
         return location.pathname === path ? 'nav-item-row active' : 'nav-item-row';
     };
     return (
