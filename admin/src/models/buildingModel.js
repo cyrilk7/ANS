@@ -1,9 +1,10 @@
 import Room from "./roomModel";
+import Category from "./categoryModel";
 
 class Building {
-    constructor({ building_id, category, categoryImage, description, history, image_path, latitude, longitude, name, rooms }) {
+    constructor({ building_id, category, category_id, categoryImage, description, history, image_path, latitude, longitude, name, rooms }) {
         this.building_id = building_id;
-        this.category = category;
+        this.category = new Category(category_id, category);
         this.categoryImage = categoryImage;
         this.description = description;
         this.history = history;

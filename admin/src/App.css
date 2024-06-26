@@ -48,7 +48,8 @@ h3 {
 
 /* Styles for the input when focused */
 input[type="text"]:focus,
-input[type="number"]:focus {
+input[type="number"]:focus,
+input[type="password"]:focus {
   border-color: #AA3C3F;
   box-shadow: 0 0 8px #AA3C3F;
   outline: none;

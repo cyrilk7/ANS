@@ -4,7 +4,7 @@
 }
 
 .login-container .left{
-    flex-basis: 45%;
+    flex-basis: 55%;
     background-color: #FFF9F9;
     display: flex;
     flex-direction: column;
@@ -18,11 +18,12 @@
 }
 
 .login-container .right{
-    flex-basis: 40%;
+    flex-basis: 45%;
     padding: 5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    /* border: 1px solid red; */
 }
 
 .login-container .left h1{
@@ -32,7 +33,7 @@
     font-style: italic;
     font-weight: 900;
     line-height: 2.4rem;
-    margin-bottom: 0;
+    margin-bottom: 1rem;
 }
 
 .login-container .left .loginSvg-container{
@@ -64,7 +65,7 @@
 }
 
 .login-container .right input{
-    width: 92%;
+    width: 100%;
     padding: 1.5rem;
     margin-top: 2rem;
     border: 1px solid #263238;
@@ -84,6 +85,7 @@
 .login-container .right h5 a{
     text-decoration: none;
     color: #AA3C3F;
+    
     
 }
 

@@ -37,6 +37,7 @@ const LoginPage = () => {
             // setIsAuthenticated(true);
             // localStorage.setItem('token', response.token);
             login();
+            // TO DO: TOAST IS NOT SHOWING BECAUSE WE ARE NAVIGATING TO THE DASHBOARD PAGE TOO QUICK
             navigate('/dashboard'); 
 
         } catch (error) {

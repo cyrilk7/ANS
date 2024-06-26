@@ -7,6 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BuildingOffCanvas from "./components/buildingOffCanvas";
 import buildingController from "../controllers/buildingController";
+import buildingTemplate from '../images/building_template.jpeg'
+import moreIcon from '../images/moreIcon.png'
 
 
 
@@ -36,19 +38,19 @@ const Buildings = () => {
         loadBuildings();
     }, []);
 
-    
+
     const handleModalOpen = () => {
         setShowModal(true);
     };
-    
+
     const handleModalClose = () => {
         setShowModal(false);
     };
-    
+
     // const handleCanvasOpen = () => {
-        //     setShowCanvas(true);
-        // }
-        
+    //     setShowCanvas(true);
+    // }
+
     const handleBuildingClick = (buildingId) => {
         setShowCanvas(true);
         setSelectedBuildingId(buildingId);
@@ -68,21 +70,48 @@ const Buildings = () => {
                 </div>
                 <div className="build-right">
                     <div className="build-title-row">
-                        <h1> Your <span>Buildings </span></h1>
-                        <div className="build-search-box">
-                            <button onClick={handleModalOpen}> New </button>
-                            <input type="text" placeholder="Search for building..." />
+                        <div className="build-title">
+                            <h1> Your <span>Buildings </span></h1>
+                            <div className="build-search-box">
+                                <button onClick={handleModalOpen}> New </button>
+                                <input type="text" placeholder="Search for building..." />
+                            </div>
                         </div>
+                        <hr />
                     </div>
                     {loading && <div> Loading... </div>}
                     {isError && <div> Error </div>}
-                    {buildings && (
-                        <div>
+
+                    {/* <div className="building-comp-container"> */}
+                        {buildings && (
+                        <div className="building-body">
                             {buildings.map((building, index) => (
-                                <h2 key={building.building_id} onClick={() => handleBuildingClick(building.building_id)}> {building.name} </h2>
+                                // <h2 key={building.building_id} onClick={() => handleBuildingClick(building.building_id)}> {building.name} </h2>
+                                <div className="building-card-container">
+                                <div className="top-build">
+                                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <div className="more-box">
+                                            <img src={moreIcon} alt="" />
+                                        </div>
+                                    </div>
+                                    <div className="circular-img-container">
+                                        <img src={buildingTemplate} alt="" />
+                                    </div>
+                                    <h5> {building.name} </h5>
+                                    <h6> {building.category.name} </h6>
+                                </div>
+                                <hr />
+                                <div onClick={() => handleBuildingClick(building.building_id)} className="bottom-build">
+                                    <h6>GET INFORMATION</h6>
+                                </div>
+                            </div>
                             ))}
                         </div>
                     )}
+
+                    {/* </div> */}
+
+
                 </div>
 
 

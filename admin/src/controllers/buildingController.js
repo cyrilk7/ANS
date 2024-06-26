@@ -23,30 +23,51 @@ const createBuilding = async (buildingData) => {
 }
 
 const fetchBuildings = async () => {
-    try{
+    try {
         const response = await api.get('/buildings');
         const data = response.data;
         return data.map(buildingData => new Building(buildingData));
 
     }
-    catch(error){
+    catch (error) {
         console.log(error);
         throw error;
     }
 }
 
-const getBuildingById =  async (building_id) => {
-    try{
+const getBuildingById = async (building_id) => {
+    try {
         const response = await api.get(`/buildings/${building_id}`);
         const data = response.data;
+        console.log(data);
         const building = new Building(data);
         return building;
     }
-    catch(error){
+    catch (error) {
+        throw error;
+    }
+}
+
+const editBuilding = async (building_id, buildingData) => {
+    try {
+        const response = await api.put(`/buildings/${building_id}`, buildingData);
+        return response.data;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+const deleteBuilding = async (building_id) => {
+    try {
+        const response = await api.delete(`/buildings/${building_id}`);
+        return response.data;
+    }
+    catch (error) {
         throw error;
     }
 }
 
 export default {
-    fetchCategories, createBuilding, fetchBuildings, getBuildingById
+    fetchCategories, createBuilding, fetchBuildings, getBuildingById, editBuilding, deleteBuilding
 };
