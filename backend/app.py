@@ -54,14 +54,16 @@ mail = Mail(app)
 class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(500), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(100), nullable=True)
     status = db.Column(db.Enum('Active', 'Inactive'), nullable=False, default='Inactive')
     role = db.Column(db.String(50), nullable=False, default='User')
     activation_token = db.Column(db.String(36), unique=True, nullable=True)
 
-    def __init__(self, email, password=None, status='Inactive', role='User'):
+    def __init__(self, name, email, password=None, status='Inactive', role='User'):
         self.email = email
+        self.name = name,
         self.password_hash = None
         self.status = status
         self.role = role
@@ -141,54 +143,20 @@ def activate_user(token):
 
 
 @app.route('/users', methods=['POST'])
-def creat_building():
-    data = request.get_json()
-
-    # Check if all required fields are provided
-    required_fields = ['name', 'description', 'category_id', 'latitude', 'longitude']
-    for field in required_fields:
-        if field not in data:
-            return jsonify({'error': f'Missing required field: {field}'}), 400
-    
-    name = data['name']
-    latitude = data['latitude']
-    longitude = data['longitude']
-
-        # Check if a building with the same name exists
-    if Building.query.filter_by(name=name).first():
-        return jsonify({'error': 'Building with the same name already exists'}), 400
-
-    # Check if a building with the same latitude and longitude exists
-    if Building.query.filter_by(latitude=latitude, longitude=longitude).first():
-        return jsonify({'error': 'Building with the same coordinates already exists'}), 400
-
-    # Create a new building instance
-    new_building = Building(
-        name=name,
-        description=data.get('description'),
-        historical_information=data.get('historical_information'),
-        latitude=latitude,
-        longitude=longitude,
-        image_path=data.get('image_path'),
-        category_id=data.get('category_id')
-    )
-
-    # Add and commit the new building to the database
-    db.session.add(new_building)
-    db.session.commit()
-
-    return jsonify({'message': 'Building created successfully'}), 201
-
-@app.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
     
     # Check if email and password fields are provided
     if not data or 'email' not in data:
         return jsonify({'message': 'Email is required'}), 400
+    
+    # Check if email and password fields are provided
+    if not data or 'name' not in data:
+        return jsonify({'message': 'Name is required'}), 400
 
     email = data.get('email')
     role = data.get('role', 'User')
+    name = data.get('name')
 
     # Validate email format
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -199,8 +167,8 @@ def create_user():
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'User with this email already exists'}), 400
 
-        # If the user does not exist, create a new user
-    user = User(email=email, role=role)
+    # If the user does not exist, create a new user
+    user = User(email=email, name=name, role=role)
     db.session.add(user)
     db.session.commit()
 
@@ -345,6 +313,7 @@ def get_buildings():
             'building_id': building.building_id,
             'name': building.name,
             'description': building.description,
+            'category_id': building.category.category_id,
             'category': building.category.name,
             'categoryImage': building.category.categoryImage,
             'history': building.historical_information,
@@ -431,10 +400,11 @@ def get_building(building_id):
         'building_id': building.building_id,
         'name': building.name,
         'description': building.description,
-        'historical_information': building.historical_information,
+        'history': building.historical_information,
         'latitude': building.latitude,
         'longitude': building.longitude,
         'image_path': building.image_path,
+        'category_id': building.category.category_id,
         'category': building.category.name if building.category else None,
         'rooms': [
                 {
@@ -448,6 +418,115 @@ def get_building(building_id):
     }
     
     return jsonify(building_data)
-    
+
+@app.route('/buildings/<int:building_id>', methods=['PUT'])
+def edit_building(building_id):
+    data = request.get_json()
+
+    building = Building.query.get(building_id)
+    if not building:
+        return jsonify({"error": "Building not found"}), 404
+
+    if 'name' in data:
+        building.name = data['name']
+    if 'description' in data:
+        building.description = data['description']
+    if 'history' in data:
+        building.historical_information = data['history']
+    if 'latitude' in data:
+        building.latitude = data['latitude']
+    if 'longitude' in data:
+        building.longitude = data['longitude']
+    if 'image_path' in data:
+        building.image_path = data['image_path']
+    if 'category_id' in data:
+        category = BuildingCategory.query.get(data['category_id'])
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
+        building.category_id = data['category_id']
+
+    db.session.commit()
+
+    return jsonify({"message": "Building updated successfully"}), 200
+
+@app.route('/buildings/<int:building_id>', methods=['DELETE'])
+def delete_building(building_id):
+    building = Building.query.get(building_id)
+    if not building:
+        return jsonify({"error": "Building not found"}), 404
+
+    db.session.delete(building)
+    db.session.commit()
+
+    return jsonify({"message": "Building deleted successfully"}), 200
+
+
+@app.route('/statistics', methods=['GET'])
+def get_stats():
+    total_buildings = Building.query.count()
+    total_users = User.query.count()
+    total_events = Event.query.count()
+    users = User.query.all()
+
+    users_list = [{
+        'user_id': user.user_id,
+        'name': user.name,
+        'email': user.email,
+        'status': user.status,
+        'role': user.role,
+        'activation_token': user.activation_token
+    } for user in users]
+
+    return jsonify({
+        'total_buildings': total_buildings,
+        'total_users': total_users,
+        'total_events': total_events,
+        'users': users_list
+    })
+
+@app.route('/users/<int:user_id>', methods=['PUT'])
+def edit_user(user_id):
+    data = request.get_json()
+
+    # Find the user by ID
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Update user details
+    if 'name' in data:
+        user.name = data['name']
+    if 'email' in data:
+        user.email = data['email']
+    if 'status' in data:
+        if data['status'] in ['Active', 'Inactive']:
+            user.status = data['status']
+        else:
+            return jsonify({'message': 'Invalid status value'}), 400
+    if 'role' in data:
+        user.role = data['role']
+    if 'password' in data:
+        # Hash the new password before storing it
+        hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        user.password_hash = hashed_password
+
+    # Save changes to the database
+    db.session.commit()
+
+    return jsonify({'message': 'User updated successfully'}), 200
+
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    # Find the user by ID
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Delete the user from the database
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({'message': 'User deleted successfully'}), 200
+
 if __name__ == "__main__":
     app.run(debug=True)
