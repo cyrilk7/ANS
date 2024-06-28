@@ -7,8 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BuildingOffCanvas from "./components/buildingOffCanvas";
 import buildingController from "../controllers/buildingController";
-import buildingTemplate from '../images/building_template.jpeg'
 import moreIcon from '../images/moreIcon.png'
+import BuildingCard from "./components/buildingCard";
 
 
 
@@ -47,9 +47,6 @@ const Buildings = () => {
         setShowModal(false);
     };
 
-    // const handleCanvasOpen = () => {
-    //     setShowCanvas(true);
-    // }
 
     const handleBuildingClick = (buildingId) => {
         setShowCanvas(true);
@@ -83,28 +80,10 @@ const Buildings = () => {
                     {isError && <div> Error </div>}
 
                     {/* <div className="building-comp-container"> */}
-                        {buildings && (
+                    {buildings && (
                         <div className="building-body">
                             {buildings.map((building, index) => (
-                                // <h2 key={building.building_id} onClick={() => handleBuildingClick(building.building_id)}> {building.name} </h2>
-                                <div className="building-card-container">
-                                <div className="top-build">
-                                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <div className="more-box">
-                                            <img src={moreIcon} alt="" />
-                                        </div>
-                                    </div>
-                                    <div className="circular-img-container">
-                                        <img src={buildingTemplate} alt="" />
-                                    </div>
-                                    <h5> {building.name} </h5>
-                                    <h6> {building.category.name} </h6>
-                                </div>
-                                <hr />
-                                <div onClick={() => handleBuildingClick(building.building_id)} className="bottom-build">
-                                    <h6>GET INFORMATION</h6>
-                                </div>
-                            </div>
+                                <BuildingCard building={building} onClick={handleBuildingClick} />
                             ))}
                         </div>
                     )}

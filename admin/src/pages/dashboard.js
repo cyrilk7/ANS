@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import dashboardController from "../controllers/dashboardController";
 import UserModal from "./components/userModal";
 import { ToastContainer, toast } from 'react-toastify';
+import UsersTable from "./components/userTable";
 
 const Dashboard = () => {
     const [data, setData] = useState(null);
@@ -37,9 +38,6 @@ const Dashboard = () => {
         return <div>Loading...</div>; // You can replace this with a spinner or any other loading indicator
     }
 
-    const getStatusClass = (status) => {
-        return status === 'Active' ? 'status-active' : 'status-inactive';
-    };
 
     const handleModalOpen = (user = null) => {
         setSelectedUser(user);
@@ -48,6 +46,7 @@ const Dashboard = () => {
 
     const handleModalClose = () => {
         setShowModal(false);
+        setSelectedUser(null);
     };
 
     const handleDelete = async (user_id) => {
@@ -121,11 +120,8 @@ const Dashboard = () => {
                             </div>
                         </div>
                         <div className="dash-right-bottom">
-                            <div className="user-table-row">
-                                <h5> User Overview </h5>
-                                <button onClick={handleModalOpen}> Add new </button>
-                            </div>
-                            <div className="user-table">
+                            <UsersTable users={data.users} onDelete={handleDelete} onModalOpen={handleModalOpen} />
+                            {/* <div className="user-table">
                                 <table>
                                     <thead>
                                         <tr>
@@ -159,7 +155,7 @@ const Dashboard = () => {
                                         ))}
                                     </tbody>
                                 </table>
-                            </div>
+                            </div> */}
                         </div>
                     </>
                 )}

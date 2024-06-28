@@ -134,8 +134,9 @@
 .user-table-row{
     display: flex;
     gap: 1rem;
-    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1rem;
+
 }
 
 .user-table-row button{
@@ -167,7 +168,7 @@
     height: 100%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 7px;
-    padding: 1rem;
+    /* padding: 1rem; */
     background-color: #f9f9f9;
 }
 
@@ -180,6 +181,7 @@
 
 table{
     width: 100%;
+    /* background-color: #f9f9f9; */
 
 }
 
@@ -188,6 +190,7 @@ th, td{
     text-align: left !important;
     padding: 8px;
     font-size: 0.9rem;
+    background-color: #f9f9f9 !important;
 }
 
 .status-active{
@@ -212,4 +215,23 @@ th, td{
     display: flex;
     gap: 0.5rem;
     height: 1.2rem;
+}
+
+.pagination .page-link {
+    color: #AA3C3F; /* Example of a more specific selector */
+}
+
+/* customStyles.css */
+
+.pagination {
+    --bs-pagination-active-bg: #AA3C3F !important; /* Background color for active page */
+    --bs-pagination-active-border-color: #AA3C3F !important; /* Border color for active page */
+    --bs-pagination-active-color: white; /* Text color for active page */
+
+    --bs-pagination-link-bg: white; /* Background color for page links */
+    --bs-pagination-link-border-color: #AA3C3F !important; /* Border color for page links */
+    --bs-pagination-link-hover-bg: #AA3C3F !important; /* Background color on hover */
+    --bs-pagination-link-hover-color: white; /* Text color on hover */
+    --bs-pagination-link-hover-border-color: #AA3C3F !important; /* Border color on hover */
+    --bs-pagination-link-color: #AA3C3F !important; /* Text color for page links */
 }
