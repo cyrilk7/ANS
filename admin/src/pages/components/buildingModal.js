@@ -120,7 +120,7 @@ const BuildingModal = (props) => {
                 </Modal.Header>
                 <Modal.Body>
                     <form onSubmit={handleSubmit}>
-                        <h3> Select a category <span> * </span> </h3>
+                        <h3 className='input-label'> Select a category <span> * </span> </h3>
                         <div className="categories">
                             {categories.map(category => (
                                 <div
@@ -133,28 +133,28 @@ const BuildingModal = (props) => {
                             ))}
                         </div>
 
-                        <h3> Building name <span> * </span> </h3>
+                        <h3 className='input-label'> Building name <span> * </span> </h3>
                         <input type="text" name='name' value={formData.name} onChange={handleChange} className='text-input' placeholder='Patric Nutor Research Building' />
 
-                        <h3> Description <span> * </span> </h3>
+                        <h3 className='input-label'> Description <span> * </span> </h3>
                         <textarea name="description" value={formData.description} onChange={handleChange} id="description" placeholder='Loren ipusm dolor color di to...' cols="30" rows="6"></textarea>
 
-                        <h3> Historical information </h3>
+                        <h3 className='input-label'> Historical information </h3>
                         <textarea name="history" value={formData.history} onChange={handleChange} id="description" placeholder='Loren ipusm dolor color di to...' cols="30" rows="6"></textarea>
 
                         <div className="latlng">
                             <div className="lat">
-                                <h3>Latitude <span> * </span></h3>
+                                <h3 className='input-label'>Latitude <span> * </span></h3>
                                 <input type="number" name='latitude' value={formData.latitude} onChange={handleChange} className="doubleInput" step="0.01" placeholder="e.g., 6.27144" />
                             </div>
 
                             <div className="lat">
-                                <h3>Longitude <span> * </span></h3>
+                                <h3 className='input-label'>Longitude <span> * </span></h3>
                                 <input type="number" name='longitude' value={formData.longitude} onChange={handleChange} className="doubleInput" step="0.01" placeholder="e.g., 6.27144" />
                             </div>
                         </div>
 
-                        <h3> Building image </h3>
+                        <h3 className='input-label'> Building image </h3>
                         <input type="file" />
                     </form>
                 </Modal.Body>

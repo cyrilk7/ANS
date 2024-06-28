@@ -1,0 +1,7 @@
+.carousel-item img {
+    width: 100%;
+    max-height: 37vh;
+    /* height: 100% !important; */
+    object-fit: cover;
+}
+
