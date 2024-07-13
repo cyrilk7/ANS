@@ -6,8 +6,10 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class IndoorMap extends StatefulWidget {
   final String mapId;
+  final String startSpace;
+  final String endSpace;
 
-  const IndoorMap({super.key, required this.mapId});
+  const IndoorMap({super.key, required this.mapId, required this.startSpace, required this.endSpace});
 
   @override
   State<IndoorMap> createState() => _IndoorMapState();
@@ -15,7 +17,7 @@ class IndoorMap extends StatefulWidget {
 
 class _IndoorMapState extends State<IndoorMap> {
   late final WebViewController _controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -44,11 +46,14 @@ class _IndoorMapState extends State<IndoorMap> {
     _loadHtmlFromAssets();
   }
 
-
   Future<void> _loadHtmlFromAssets() async {
-    String fileText = await rootBundle.loadString('assets/html/mappedin_map.html');
-    String modifiedHtml = fileText.replaceAll('{{MAP_ID}}', widget.mapId);
-    
+    String fileText =
+        await rootBundle.loadString('assets/html/mappedin_map.html');
+    String modifiedHtml = fileText
+        .replaceAll('{{MAP_ID}}', widget.mapId)
+        .replaceAll('{{START_SPACE}}', widget.startSpace)
+        .replaceAll('{{END_SPACE}}', widget.endSpace);
+
     _controller.loadRequest(Uri.dataFromString(
       modifiedHtml,
       mimeType: 'text/html',

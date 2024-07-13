@@ -29,7 +29,6 @@
 
 <body>
   <div id="mappedin-map"></div>
-  <h1>MAPPED IN</h1>
   <script type="module">
     import {
       getMapData,
@@ -40,38 +39,32 @@
     const options = {
       key: "6634ff8b8004177ee42bcd0e",
       secret: "282be7103a8c149c8eb88fbd193793bbca10307afb94e5cba26305a751c3cf40",
-      mapId: "6668718e8de671000ba55c93"
+      mapId: "{{MAP_ID}}"
     }
 
     var mapData = await getMapData(options);
     var mapView = await show3dMap(document.getElementById("mappedin-map"), mapData);
-    // Add all the labels to the map.
+
     mapView.Labels.all();
-    
+
     // Get the spaces for the first and second spaces to navigate to and from.
-    // const firstSpace = mapData.getByType('space').find(s => s.name === 'Room 203 (Greene Lounge)');
-    // const secondSpace = mapData.getByType('space').find(s => s.name === 'Norton Mutolsky 207-A');
-    
-    // Label all spaces with its space name and make them interactive.
-    // mapData.getByType('space').forEach(space => {
-    //   if (space.name) {
-    //     mapView.Labels.add(space, "space.name");
-    //     console.log(mapView.Labels);
-    //   }
-    // });
+    const firstSpace = mapData.getByType('space').find(s => s.name === "{{START_SPACE}}");
+    // const secondSpace = mapData.getByType('space').find(s => s.name === "{{END_SPACE}}");
 
-    // mapView.Labels.all();
-    
+    // const firstSpace = mapData.getByType('space').find(s => s.name === 'Room 107');
+    const secondSpace = mapData.getByType('space').find(s => s.name === '{{END_SPACE}}');
 
-    // // Ensure that the spaces exist.
-    // if (firstSpace && secondSpace) {
-    //   const directions = mapView.getDirections(firstSpace, secondSpace);
+    // Ensure that the spaces exist.
+    if (firstSpace && secondSpace) {
+      const directions = mapView.getDirections(firstSpace, secondSpace);
 
-    //   if (directions) {
-    //     // Add a path from the first space to the second space.
-    //     mapView.Navigation.draw(directions);
-    //   }
-    // }
+      if (directions) {
+        // Add a path from the first space to the second space.
+        mapView.Navigation.draw(directions);
+      }
+    }
+
+
 
   </script>
 </body>

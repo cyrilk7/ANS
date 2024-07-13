@@ -1,14 +1,15 @@
-import 'dart:convert';
+// import 'dart:convert';
 
 import 'package:ashesi_navigation_app/controllers/building_controller.dart';
 import 'package:ashesi_navigation_app/models/building_model.dart';
 import 'package:ashesi_navigation_app/models/location_model.dart';
+import 'package:ashesi_navigation_app/models/room_model.dart';
 import 'package:ashesi_navigation_app/providers/location_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchLocation extends StatefulWidget {
   final Location? chosenDestination;
@@ -124,18 +125,29 @@ class _SearchLocationState extends State<SearchLocation> {
     });
   }
 
-  void selectLocation(Building building) {
+  void selectLocation(Building building, [Room? room]) {
     final locationProvider =
         Provider.of<LocationProvider>(context, listen: false);
     setState(() {
       if (isSelectingStart) {
         startLocation = building.location;
-        startLocationController.text = building.location.name;
+        // startLocationController.text = building.location.name;
+        startLocationController.text = room != null
+            ? '${building.name} - ${room.roomName}'
+            : building.location.name;
         locationProvider.setStartLocation(building.location);
+        if (room != null) {
+          locationProvider.setStartRoom(room);
+        }
       } else {
         endLocation = building.location;
-        endLocationController.text = building.location.name;
+        endLocationController.text = room != null
+            ? '${building.name} - ${room.roomNumber}'
+            : building.location.name;
         locationProvider.setEndLocation(building.location);
+        if (room != null) {
+          locationProvider.setEndRoom(room);
+        }
       }
       isFocused = false;
       // updateRecentSearches(building);
@@ -190,6 +202,7 @@ class _SearchLocationState extends State<SearchLocation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Enter Location'),
       ),
       body: isLoading
@@ -198,6 +211,7 @@ class _SearchLocationState extends State<SearchLocation> {
             )
           : Column(
               children: [
+                const SizedBox(height: 10,),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
@@ -269,9 +283,10 @@ class _SearchLocationState extends State<SearchLocation> {
                   decoration: const BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
+
                         color: Color.fromARGB(
                             255, 242, 242, 242), // Set the color of the border
-                        width: 15.0, // Set the width of the border
+                        width: 5.0, // Set the width of the border
                       ),
                     ),
                   ),
@@ -337,27 +352,65 @@ class _SearchLocationState extends State<SearchLocation> {
                       shrinkWrap: true,
                       itemCount: filteredLocations.length,
                       itemBuilder: (context, index) {
-                        return Container(
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Color.fromARGB(255, 242, 242,
-                                    242), // Set the color of the border
-                                width: 5.0, // Set the width of the border
+                        Building building = filteredLocations[index];
+                        List<Widget> buildingAndRoomsList = [
+                          Container(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Color.fromARGB(255, 242, 242,
+                                      242), // Set the color of the border
+                                  width: 5.0, // Set the width of the border
+                                ),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 19),
+                              child: ListTile(
+                                leading:
+                                    const Icon(Icons.location_pin, size: 30),
+                                title: Text(building.name),
+                                subtitle: const Text("Ashesi University"),
+                                onTap: () {
+                                  selectLocation(building);
+                                },
                               ),
                             ),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 19),
-                            child: ListTile(
-                              leading: const Icon(Icons.location_pin, size: 30),
-                              title: Text(filteredLocations[index].name),
-                              subtitle: const Text("Ashesi University"),
-                              onTap: () {
-                                selectLocation(filteredLocations[index]);
-                              },
-                            ),
-                          ),
+                        ];
+
+                        if (building.mapId.isNotEmpty) {
+                          buildingAndRoomsList
+                              .addAll(building.rooms.map((room) {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Color.fromARGB(255, 242, 242,
+                                        242), // Set the color of the border
+                                    width: 5.0, // Set the width of the border
+                                  ),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 19),
+                                child: ListTile(
+                                  leading:
+                                      const Icon(Icons.meeting_room, size: 30),
+                                  title: Text(
+                                      '${building.name} - Room ${room.roomName}'),
+                                  subtitle: const Text("Ashesi University"),
+                                  onTap: () {
+                                    selectLocation(building, room);
+                                  },
+                                ),
+                              ),
+                            );
+                          }).toList());
+                        }
+
+                        return Column(
+                          children: buildingAndRoomsList,
                         );
                       },
                     ),

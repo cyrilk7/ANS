@@ -5,7 +5,6 @@ import 'package:ashesi_navigation_app/models/location_model.dart';
 import 'package:ashesi_navigation_app/models/room_model.dart';
 import 'package:ashesi_navigation_app/pages/building_information.dart';
 
-
 class Building extends StatelessWidget {
   final String category;
   final String description;
@@ -13,6 +12,7 @@ class Building extends StatelessWidget {
   final String history;
   final String imagePath;
   final Location location;
+  final String mapId;
   final List<Room> rooms;
   final String categoryIconPath;
 
@@ -23,18 +23,25 @@ class Building extends StatelessWidget {
       required this.name,
       required this.history,
       required this.location,
+      required this.mapId,
       required this.rooms,
       required this.imagePath,
       required this.categoryIconPath});
 
   factory Building.fromJson(Map<String, dynamic> json) {
-    List<dynamic> roomsJson = json['rooms'];
     Location location = Location(
-        name: json['name'],
-        latitude: json['latitude'],
-        longitude: json['longitude']);
-    List<Room> rooms =
-        roomsJson.map((roomJson) => Room.fromJson(roomJson)).toList();
+      name: json['name'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      mapId: json['map_id'],
+    );
+
+    List<Room> rooms = [];
+    if (json.containsKey('rooms') && json['rooms'] != null) {
+      // print("so");
+      List<dynamic> roomsJson = json['rooms'];
+      rooms = roomsJson.map((roomJson) => Room.fromJson(roomJson)).toList();
+    }
 
     return Building(
       category: json['category'],
@@ -42,7 +49,8 @@ class Building extends StatelessWidget {
       name: json['name'],
       imagePath: json['image_path'],
       history: json['history'],
-      categoryIconPath: json['categoryImage'],
+      categoryIconPath: json['categoryImage'] ?? '',
+      mapId: json['map_id'] ?? '',
       location: location,
       rooms: rooms,
     );
@@ -56,6 +64,7 @@ class Building extends StatelessWidget {
       'history': history,
       'location': location.toJson(),
       'image_path': imagePath,
+      'map_id': mapId,
       'rooms': rooms.map((room) => room.toJson()).toList(),
     };
   }
@@ -104,8 +113,7 @@ class Building extends StatelessWidget {
                             SizedBox(
                               height: 20,
                               width: 20,
-                              child: Image.asset(
-                                  categoryIconPath,
+                              child: Image.asset(categoryIconPath,
                                   fit: BoxFit.cover),
                             ),
                             const SizedBox(

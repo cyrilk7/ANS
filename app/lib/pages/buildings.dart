@@ -45,7 +45,7 @@ class _BuildingsState extends State<Buildings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(130),
+        preferredSize: const Size.fromHeight(90),
         child: AppBar(
           actions: [],
           backgroundColor: const Color.fromARGB(255, 170, 59, 62),

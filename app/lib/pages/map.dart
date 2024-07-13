@@ -1,5 +1,6 @@
 import 'package:ashesi_navigation_app/controllers/route_controller.dart';
 import 'package:ashesi_navigation_app/models/location_model.dart';
+import 'package:ashesi_navigation_app/pages/indoor_map.dart';
 import 'package:ashesi_navigation_app/pages/menu.dart';
 import 'package:ashesi_navigation_app/pages/search_location.dart';
 import 'package:ashesi_navigation_app/providers/location_provider.dart';
@@ -21,6 +22,9 @@ class _MapState extends State<Map> {
   bool locationInitialized = false;
   late Location start;
   late Location end;
+  bool showIndoorMap = false;
+  String? indoorMapId;
+  bool sameBuilding = false;
 
   @override
   void initState() {
@@ -38,7 +42,12 @@ class _MapState extends State<Map> {
         locationInitialized = true;
         start = locationProvider.startLocation!;
         end = locationProvider.endLocation!;
+        showIndoorMap = locationProvider.startRoom != null;
+        indoorMapId = locationProvider.startLocation?.mapId;
+        sameBuilding = locationProvider.startLocation?.name ==
+            locationProvider.endLocation?.name;
       });
+    _fetchRoute(start.latitude, start.longitude, end.latitude, end.longitude);
     }
   }
 
@@ -59,50 +68,66 @@ class _MapState extends State<Map> {
     });
   }
 
+  void toggleMapView() {
+    setState(() {
+      showIndoorMap = !showIndoorMap; // Toggle the map view
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
     final startLocation = locationProvider.startLocation;
     final endLocation = locationProvider.endLocation;
+    final startRoom = locationProvider.startRoom;
+    final endRoom = locationProvider.endRoom;
 
     return Stack(children: [
-      FlutterMap(
-        options: MapOptions(
-          initialCenter: routpoints[0],
-          initialZoom: 17,
+      if (showIndoorMap && indoorMapId != null)
+        IndoorMap(
+          mapId: indoorMapId!,
+          startSpace: startRoom!.roomName,
+          endSpace: endRoom!.roomName,
+        )
+      // IndoorMap(mapId: indoorMapId!, startSpace: 'Room 104 (Adjunct Office)', endSpace: 'Room 101 (Science Lab)',)
+      else
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: routpoints[0],
+            initialZoom: 17,
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.app',
+            ),
+            PolylineLayer(
+              polylineCulling: false,
+              polylines: [
+                Polyline(points: routpoints, color: Colors.blue, strokeWidth: 9)
+              ],
+            ),
+            if (startLocation != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point:
+                        LatLng(startLocation.latitude, startLocation.longitude),
+                    child: const Icon(Icons.location_pin, color: Colors.blue),
+                  ),
+                ],
+              ),
+            if (endLocation != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(endLocation.latitude, endLocation.longitude),
+                    child: const Icon(Icons.location_pin, color: Colors.red),
+                  ),
+                ],
+              ),
+          ],
         ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.app',
-          ),
-          PolylineLayer(
-            polylineCulling: false,
-            polylines: [
-              Polyline(points: routpoints, color: Colors.blue, strokeWidth: 9)
-            ],
-          ),
-          if (startLocation != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point:
-                      LatLng(startLocation.latitude, startLocation.longitude),
-                  child: const Icon(Icons.location_pin, color: Colors.blue),
-                ),
-              ],
-            ),
-          if (endLocation != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(endLocation.latitude, endLocation.longitude),
-                  child: const Icon(Icons.location_pin, color: Colors.red),
-                ),
-              ],
-            ),
-        ],
-      ),
       Positioned(
         top: 60,
         left: 20,
@@ -167,90 +192,133 @@ class _MapState extends State<Map> {
           ],
         ),
       ),
-      if (locationInitialized) ...[
+      if (!sameBuilding)
         Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: SizedBox(
-              width: double.infinity,
-              child: Card(
-                color: Colors.white,
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Start Location',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        start.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text(
-                        'End location',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        end.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 55),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10.0), // Set desired border radius here
-                          ),
-                          backgroundColor:
-                              const Color.fromARGB(255, 170, 60, 63),
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () {
-                          _fetchRoute(start.latitude, start.longitude,
-                              end.latitude, end.longitude);
-                          setState(() {
-                            locationInitialized = false;
-                          });
-                        },
-                        child: const Text(
-                          "Start",
-                          style: TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16, bottom: 26),
+              child: GestureDetector(
+                onTap: () {
+                  toggleMapView();
+                },
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.map_sharp,
+                      size: 30,
+                      color: Color.fromARGB(255, 170, 59, 62),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        )
-      ]
+            ))
+      // if (locationInitialized) ...[
+      //   Align(
+      //     alignment: Alignment.bottomCenter,
+      //     child: Padding(
+      //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      //       child: SizedBox(
+      //         width: double.infinity,
+      //         child: Card(
+      //           color: Colors.white,
+      //           elevation: 4,
+      //           child: Padding(
+      //             padding: const EdgeInsets.all(12.0),
+      //             child: Column(
+      //               mainAxisSize: MainAxisSize.min,
+      //               crossAxisAlignment: CrossAxisAlignment.start,
+      //               children: [
+      //                 const Text(
+      //                   'Start Location',
+      //                   style: TextStyle(
+      //                       color: Colors.grey,
+      //                       fontSize: 14,
+      //                       fontWeight: FontWeight.bold),
+      //                 ),
+      //                 const SizedBox(
+      //                   height: 5,
+      //                 ),
+      //                 Text(
+      //                   start.name,
+      //                   style: const TextStyle(
+      //                       fontWeight: FontWeight.bold, fontSize: 20),
+      //                 ),
+      //                 const SizedBox(
+      //                   height: 10,
+      //                 ),
+      //                 const Text(
+      //                   'End location',
+      //                   style: TextStyle(
+      //                       color: Colors.grey,
+      //                       fontSize: 14,
+      //                       fontWeight: FontWeight.bold),
+      //                 ),
+      //                 const SizedBox(
+      //                   height: 5,
+      //                 ),
+      //                 Text(
+      //                   end.name,
+      //                   style: const TextStyle(
+      //                       fontWeight: FontWeight.bold, fontSize: 20),
+      //                 ),
+      //                 const SizedBox(
+      //                   height: 10,
+      //                 ),
+      //                 ElevatedButton(
+      //                   style: ElevatedButton.styleFrom(
+      //                     minimumSize: const Size(double.infinity, 55),
+      //                     shape: RoundedRectangleBorder(
+      //                       borderRadius: BorderRadius.circular(
+      //                           10.0), // Set desired border radius here
+      //                     ),
+      //                     backgroundColor:
+      //                         const Color.fromARGB(255, 170, 60, 63),
+      //                     foregroundColor: Colors.white,
+      //                   ),
+      //                   onPressed: () {
+      //                     _fetchRoute(start.latitude, start.longitude,
+      //                         end.latitude, end.longitude);
+      //                     setState(() {
+      //                       locationInitialized = false;
+      //                     });
+      //                   },
+      //                   child: const Text(
+      //                     "Start",
+      //                     style: TextStyle(
+      //                         fontSize: 17, fontWeight: FontWeight.bold),
+      //                   ),
+      //                 ),
+      // if ((startRoom != null && !showIndoorMap) ||
+      //     (endRoom != null && showIndoorMap))
+      //   ElevatedButton(
+      //     style: ElevatedButton.styleFrom(
+      //       minimumSize: const Size(double.infinity, 55),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(10.0),
+      //       ),
+      //       backgroundColor: Colors.blue,
+      //       foregroundColor: Colors.white,
+      //     ),
+      //     onPressed: toggleMapView,
+      //     child: Text(
+      //       showIndoorMap ? 'Switch to Outdoor Map' : 'Switch to Indoor Map',
+      //       style: const TextStyle(),
+      //     ),
+      //   )
+      //               ],
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //   )
+      // ]
     ]);
   }
 }

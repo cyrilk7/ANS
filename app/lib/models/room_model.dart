@@ -2,6 +2,7 @@ class Room {
   late final String building;
   late final int capacity;
   late final String roomNumber;
+  late final String roomName;
   late final String type;
 
   Room({
@@ -9,6 +10,7 @@ class Room {
     required this.capacity,
     required this.roomNumber,
     required this.type,
+    required this.roomName
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class Room {
       capacity: json['capacity'],
       roomNumber: json['room_number'],
       type: json['type'],
+      roomName: json['room_name'] ?? '',
     );
   }
 
@@ -26,6 +29,7 @@ class Room {
       'capacity': capacity,
       'room_number': roomNumber,
       'type': type,
+      'room_name': roomName,
     };
   }
 }

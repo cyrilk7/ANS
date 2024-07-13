@@ -28,6 +28,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white, // Set your desired background color here
+      ),
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(),
@@ -49,8 +52,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List pages = [
-    // const Map(),
-    const IndoorMap(mapId: "6668718e8de671000ba55c93"),
+    const Map(),
+    // const IndoorMap(mapId: "6668718e8de671000ba55c93"),
     const Events(),
     const Buildings(),
     const Schedule()
@@ -69,9 +72,10 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context, locationProvider, _) {
         int currentIndex = locationProvider.selectedIndex;
         return Scaffold(
+          backgroundColor: const Color.fromARGB(255, 248, 248, 250),
           appBar: currentIndex != 0 && currentIndex != 2
               ? PreferredSize(
-                  preferredSize: const Size.fromHeight(130),
+                  preferredSize: const Size.fromHeight(90),
                   child: AppBar(
                     backgroundColor: const Color.fromARGB(255, 170, 59, 62),
                     flexibleSpace: Padding(
@@ -112,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
               : null,
           body: pages[currentIndex],
           bottomNavigationBar: BottomNavigationBar(
+            backgroundColor: Colors.white,
             type: BottomNavigationBarType.fixed,
             currentIndex: currentIndex,
             onTap: (index) {

@@ -213,8 +213,7 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
                           SizedBox(
                             height: 20,
                             width: 20,
-                            child: Image.asset(
-                                widget.building.categoryIconPath,
+                            child: Image.asset(widget.building.categoryIconPath,
                                 fit: BoxFit.cover),
                           ),
                           const SizedBox(
