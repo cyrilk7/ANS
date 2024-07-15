@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pagination from 'react-bootstrap/Pagination';
 import deleteIcon from '../../images/canvasIcons/deleteIcon.png';
@@ -8,7 +8,34 @@ import "../../styles/dashboard.css";
 const UsersTable = (props) => {
     const { users, onDelete, onModalOpen } = props;
     const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 3; // Adjust this as needed
+    const [usersPerPage, setUsersPerPage] = useState(3); // Initial users per page
+
+    const tableContainerRef = useRef(null);
+
+    useEffect(() => {
+        // Function to calculate users per page based on container height
+        const calculateUsersPerPage = () => {
+            if (tableContainerRef.current) {
+                const containerHeight = tableContainerRef.current.offsetHeight;
+                const rowHeight = 60; // Assuming each row has a height of 40px (adjust as needed)
+                const calculatedUsersPerPage = Math.floor(containerHeight / rowHeight);
+                setUsersPerPage(calculatedUsersPerPage);
+            }
+        };
+
+        calculateUsersPerPage();
+
+        // Recalculate on window resize (optional)
+        const handleResize = () => {
+            calculateUsersPerPage();
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     // Calculate the index of the first and last user to display on the current page
     const indexOfLastUser = currentPage * usersPerPage;
@@ -36,8 +63,6 @@ const UsersTable = (props) => {
         console.log('Opening modal for user:', user);
     };
 
-
-
     // Create page numbers
     const pageNumbers = [];
     for (let i = 1; i <= Math.ceil(users.length / usersPerPage); i++) {
@@ -59,7 +84,7 @@ const UsersTable = (props) => {
                     ))}
                 </Pagination>
             </div>
-            <div className="user-table">
+            <div className="user-table" ref={tableContainerRef}>
                 <table className="table">
                     <thead>
                         <tr>
@@ -97,8 +122,5 @@ const UsersTable = (props) => {
         </>
     );
 };
-
-
-
 
 export default UsersTable;

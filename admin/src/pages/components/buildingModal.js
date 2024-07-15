@@ -12,6 +12,7 @@ const BuildingModal = (props) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const [buildingId, setBuildingId] = useState(null);
+    const [file, setFile] = useState(null);
 
     const [formData, setFormData] = useState({
         category_id: '',
@@ -20,7 +21,7 @@ const BuildingModal = (props) => {
         history: '',
         latitude: '',
         longitude: '',
-        imagePath: '',
+        // imagePath: '',
     });
 
     const handleChange = (e) => {
@@ -40,9 +41,14 @@ const BuildingModal = (props) => {
     };
 
     const validateForm = () => {
-        const { category, name, description, latitude, longitude } = formData;
-        if (!category || !name || !description || !latitude || !longitude) {
+        const { category_id, name, description, latitude, longitude } = formData;
+        if (!category_id || !name || !description || !latitude || !longitude) {
             toast.warning('Please fill out all required fields.');
+            return false;
+        }
+
+        if (!file) {
+            toast.warning('Please attach a file.');
             return false;
         }
         return true;
@@ -69,17 +75,31 @@ const BuildingModal = (props) => {
         props.onClose();
     };
 
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
             try {
-                if (isEditMode){
-                    const response = await buildingController.editBuilding(buildingId, formData);
+                const data = new FormData();
+                for (const key in formData) {
+                    data.append(key, formData[key]);
+                }
+                if (file) {
+                    data.append('file', file);
+                }
+
+                if (isEditMode) {
+                    const response = await buildingController.editBuilding(buildingId, data);
                     toast.success(response.message)
                 }
-                else{
-                    const response = await buildingController.createBuilding(formData);
+
+                else {
+                    // console.log(formDataWithFile);
+                    const response = await buildingController.createBuilding(data);
                     toast.success(response.message)
                 }
             }
@@ -105,7 +125,7 @@ const BuildingModal = (props) => {
             setSelectedCategory(category.category_id);
             setBuildingId(building_id);
             setIsEditMode(true);
-        } 
+        }
         else {
             setIsEditMode(false);
         }
@@ -116,7 +136,7 @@ const BuildingModal = (props) => {
         <div>
             <Modal size='lg' show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title style={{ fontWeight: 'bold' }}> Add a New Building </Modal.Title>
+                    <Modal.Title style={{ fontWeight: 'bold' }}> {isEditMode ? 'Edit Building' : "Add A New Building"} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form onSubmit={handleSubmit}>
@@ -155,7 +175,7 @@ const BuildingModal = (props) => {
                         </div>
 
                         <h3 className='input-label'> Building image </h3>
-                        <input type="file" />
+                        <input type="file" onChange={handleFileChange} />
                     </form>
                 </Modal.Body>
                 <Modal.Footer>

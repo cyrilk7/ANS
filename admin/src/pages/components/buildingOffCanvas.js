@@ -44,8 +44,10 @@ const BuildingOffCanvas = (props) => {
         const loadBuilding = async () => {
             try {
                 const building = await buildingController.getBuildingById(props.buildingId);
+                console.log(building);
                 // console.log(building);
                 setBuilding(building);
+                
                 // setLoading(false);
             } catch (error) {
                 console.error('Error loading building:', error);
@@ -70,7 +72,7 @@ const BuildingOffCanvas = (props) => {
                     {building ? (
                         <>
                             <div className="img-container">
-                                <img src={buildingTemplate} alt="" />
+                                <img src={building.image_path} alt="" />
                             </div>
                             <div className="building-descr-body">
                                 <div className="category-canvas-row">

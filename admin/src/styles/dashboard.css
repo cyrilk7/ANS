@@ -10,6 +10,7 @@
 
 .dashboard-cont .dash-right{
     width: 79%;
+    /* margin-bottom: rem; */
     /* background-color:; */
     /* height: 100%; */
     /* border: 1px solid red; */
@@ -185,12 +186,17 @@ table{
 
 }
 
+tr{
+    height: 1rem;
+}
+
 th, td{
     border-bottom: 1px solid #dddddd !important;
     text-align: left !important;
     padding: 8px;
     font-size: 0.9rem;
     background-color: #f9f9f9 !important;
+    /* height: 40px; */
 }
 
 .status-active{

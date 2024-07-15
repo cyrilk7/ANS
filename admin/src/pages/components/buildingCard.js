@@ -9,9 +9,11 @@ const BuildingCard = (props) => {
         props.onClick(building.building_id);
     };
 
+    
+
   return (
     <Card style={{ width: '15rem' }}>
-      <Card.Img variant="top" src={buildingTemplate} />
+      <Card.Img variant="top" src={building.image_path} />
       <Card.Body style={{textAlign:"left"}}>
         <Card.Title style={{fontWeight: "bold"}}> {building.name} </Card.Title>
         <Card.Text style={{fontSize: "0.8rem", fontWeight: "900", color: "gray"}}>

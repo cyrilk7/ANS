@@ -50,12 +50,12 @@ const Dashboard = () => {
     };
 
     const handleDelete = async (user_id) => {
-        try{
+        try {
             const response = await dashboardController.deleteUser(user_id);
             toast.success(response.message);
-            
+
         }
-        catch(error){
+        catch (error) {
             console.log(error);
         }
     }
@@ -120,42 +120,11 @@ const Dashboard = () => {
                             </div>
                         </div>
                         <div className="dash-right-bottom">
-                            <UsersTable users={data.users} onDelete={handleDelete} onModalOpen={handleModalOpen} />
-                            {/* <div className="user-table">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th> ID </th>
-                                            <th> Name </th>
-                                            <th> Email </th>
-                                            <th> Status </th>
-                                            <th> Role </th>
-                                            <th> Operation </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data.users.map(user => (
-                                            <tr key={user.user_id}>
-                                                <td> {user.user_id} </td>
-                                                <td> {user.name} </td>
-                                                <td> {user.email} </td>
-                                                <td>
-                                                    <div className={getStatusClass(user.status)}>
-                                                        {user.status}
-                                                    </div>
-                                                </td>
-                                                <td> {user.role} </td>
-                                                <td>
-                                                    <div className="operation-icons">
-                                                        <img src={editIcon} alt="" onClick={() => handleModalOpen(user)} />
-                                                        <img src={deleteIcon} alt="" onClick={() => handleDelete(user.user_id)}/>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div> */}
+                            <UsersTable
+                                users={data.users}
+                                onDelete={handleDelete}
+                                onModalOpen={handleModalOpen}
+                            />
                         </div>
                     </>
                 )}
@@ -167,7 +136,6 @@ const Dashboard = () => {
                     onClose={handleModalClose}
                     user={selectedUser}
                 />
-
             )}
         </div>
     );

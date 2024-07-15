@@ -21,6 +21,7 @@ const Buildings = () => {
     const [isError, setError] = useState(null);
     const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
+
     useEffect(() => {
         const loadBuildings = async () => {
             try {
@@ -82,8 +83,11 @@ const Buildings = () => {
                     {/* <div className="building-comp-container"> */}
                     {buildings && (
                         <div className="building-body">
+                            
                             {buildings.map((building, index) => (
-                                <BuildingCard building={building} onClick={handleBuildingClick} />
+                                <div>
+                                    <BuildingCard building={building} onClick={handleBuildingClick} />
+                                </div>
                             ))}
                         </div>
                     )}
