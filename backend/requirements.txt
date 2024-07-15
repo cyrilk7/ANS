@@ -5,3 +5,6 @@ flask_bcrypt
 Flask-Mail
 python-dotenv
 flask_cors
+Flask-Migrate
+Flask-Uploads
+Werkzeug

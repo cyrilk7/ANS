@@ -1,3 +1,6 @@
+# app/routes.py
+from app import app, db, bcrypt, mail
+from app.models import User, Building, Event, BuildingCategory, Room, RoomType
 import pymysql
 from flask import Flask, request, jsonify, url_for, render_template_string, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -5,125 +8,15 @@ from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
 import re
 import uuid
-from dotenv import load_dotenv
-import os
-from flask_cors import CORS
 from flask_migrate import Migrate
-from datetime import datetime
-from config import Config
+from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
+import os
 
-app = Flask(__name__)
-app.config.from_object(Config)
-CORS(app)
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Initialize database connection using environment variables
-hostname = os.getenv('HOSTNAME')
-user = 'root'
-password = os.getenv('PASSWORD')
-
-db = pymysql.connect(
-    host=hostname,
-    user=user,
-    password=password
-)
-
-cursor = db.cursor()
-cursor.execute("CREATE DATABASE IF NOT EXISTS ANS_db")
-cursor.close()
-db.close()
-
-# Creating an instance of the SQLAlchemy class
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-bcrypt = Bcrypt(app)
-mail = Mail(app)
-
-class User(db.Model):
-    __tablename__ = 'users'
-    user_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(500), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash = db.Column(db.String(100), nullable=True)
-    status = db.Column(db.Enum('Active', 'Inactive'), nullable=False, default='Inactive')
-    role = db.Column(db.String(50), nullable=False, default='User')
-    activation_token = db.Column(db.String(36), unique=True, nullable=True)
-
-    def __init__(self, name, email, password=None, status='Inactive', role='User'):
-        self.email = email
-        self.name = name,
-        self.password_hash = None
-        self.status = status
-        self.role = role
-        self.activation_token = str(uuid.uuid4())
-
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-
-class BuildingCategory(db.Model):
-    __tablename__ = 'building_category'
-    category_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    categoryImage = db.Column(db.String(300), nullable=False)
-
-
-class Building(db.Model):
-    __tablename__ = 'building'
-    building_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(500))
-    historical_information = db.Column(db.String(500))
-    latitude = db.Column(db.Float)
-    longitude = db.Column(db.Float)
-    image_path = db.Column(db.String(500))
-    map_id = db.Column(db.String(500))
-    category_id = db.Column(db.Integer, db.ForeignKey('building_category.category_id'))
-    category = db.relationship('BuildingCategory', backref='buildings')
-
-
-
-class RoomType(db.Model):
-    __tablename__ = 'room_type'
-    type_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-
-class Room(db.Model):
-    __tablename__ = 'room'
-    room_id = db.Column(db.Integer, primary_key=True)
-    building_id = db.Column(db.Integer, db.ForeignKey('building.building_id'))
-    type_id = db.Column(db.Integer, db.ForeignKey('room_type.type_id'))
-    room_number = db.Column(db.String(20))
-    room_name = db.Column(db.String(200))
-    capacity = db.Column(db.Integer)
-    building = db.relationship('Building', backref='rooms')
-    room_type = db.relationship('RoomType', backref='rooms')
-
-class Event(db.Model):
-    __tablename__ = 'event'
-    event_id = db.Column(db.Integer, primary_key=True)
-    registrar = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    room_id = db.Column(db.Integer, db.ForeignKey('room.room_id'))
-    building_id = db.Column(db.Integer, db.ForeignKey('building.building_id'))
-    name = db.Column(db.String(100), nullable=False)
-    organizer = db.Column(db.String(100), nullable=False)
-    date_booked = db.Column(db.DateTime)
-    event_date = db.Column(db.Date)
-    event_time = db.Column(db.Time)
-    duration = db.Column(db.Integer)
-    room = db.relationship('Room', backref='events')
-    building = db.relationship('Building', backref='buildings')
-    user = db.relationship('User', backref='users')
-
-
-
-
-with app.app_context():
-    db.create_all()
-
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/activate/<token>', methods=['GET'])
 def activate_user(token):
@@ -281,7 +174,7 @@ def login():
 
 
     if not data or 'email' not in data or 'password' not in data:
-        return jsonify({'message': 'Email and password are required'})
+        return jsonify({'message': 'Email and password are required'}), 400
 
     email = data.get('email')
     password = data.get('password')
@@ -353,8 +246,41 @@ def get_categories():
     return jsonify(results), 200
 
 
-@app.route('/buildings', methods=['POST'])
+# @app.route('/buildings', methods=['POST'])
 def create_building():
+
+    # Check if the post request has the file part
+    if 'files[]' not in request.files:
+        resp = jsonify({'message': 'No file part in the request'})
+        resp.status_code = 400
+        return resp
+    
+    files = request.files.getlist('files[]')
+    errors = {}
+    success = False
+
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            success = True
+        else:
+            errors[file.filename] = 'File type is not allowed'
+    
+    if success and errors:
+        errors['message'] = 'File(s) successfully uploaded'
+        resp = jsonify(errors)
+        resp.status_code = 500
+        return resp
+    elif success:
+        resp = jsonify({'message': 'Files successfully uploaded'})
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify(errors)
+        resp.status_code = 500
+        return resp
+
     data = request.get_json()
 
     # Check if all required fields are provided
@@ -375,6 +301,7 @@ def create_building():
     if Building.query.filter_by(latitude=latitude, longitude=longitude).first():
         return jsonify({'error': 'Building with the same coordinates already exists'}), 403
 
+
     # Create a new building instance
     new_building = Building(
         name=name,
@@ -391,6 +318,53 @@ def create_building():
     db.session.commit()
 
     return jsonify({'message': 'Building created successfully'}), 201
+
+@app.route('/buildings', methods=['POST'])
+def create_building_with_image():
+    # Check if all required fields and file part are provided
+    if 'name' not in request.form or 'description' not in request.form or 'category_id' not in request.form \
+            or 'latitude' not in request.form or 'longitude' not in request.form or 'file' not in request.files:
+        return jsonify({'error': 'Missing required fields or file part in the request'}), 400
+
+    # Extract building data
+    name = request.form['name']
+    description = request.form['description']
+    category_id = int(request.form['category_id'])
+    latitude = float(request.form['latitude'])
+    longitude = float(request.form['longitude'])
+
+    # Check if a building with the same name exists
+    if Building.query.filter_by(name=name).first():
+        return jsonify({'error': 'Building with the same name already exists'}), 403
+
+    # Check if a building with the same latitude and longitude exists
+    if Building.query.filter_by(latitude=latitude, longitude=longitude).first():
+        return jsonify({'error': 'Building with the same coordinates already exists'}), 403
+
+    # Handle file upload
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    else:
+        return jsonify({'error': 'Invalid file or file type not allowed'}), 400
+
+    # Create a new building instance
+    new_building = Building(
+        name=name,
+        description=description,
+        latitude=latitude,
+        longitude=longitude,
+        image_path=image_path,
+        category_id=category_id
+    )
+
+    # Add and commit the new building to the database
+    db.session.add(new_building)
+    db.session.commit()
+
+    return jsonify({'message': 'Building created successfully', 'building_id': new_building.building_id}), 201
 
 
 @app.route('/buildings/<int:building_id>', methods=['GET'])
@@ -602,5 +576,61 @@ def create_event():
 
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+@app.route('/events/<day>', methods=['GET'])
+def get_events_by_day(day):
+    try:
+        # Parse the date from the URL parameter in the format YYYY-MM-DD
+        event_date = datetime.strptime(day, '%Y-%m-%d').date()
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+    # Query events for the given date
+    events = db.session.query(Event).filter_by(event_date=event_date).all()
+
+    # Group events by their start time
+    grouped_events = {}
+    for event in events:
+        start_time = event.event_time.strftime('%I:%M %p')  # Format with AM/PM
+        end_time = (datetime.combine(event.event_date, event.event_time) + timedelta(minutes=event.duration)).strftime('%I:%M %p')
+        event_data = {
+            "event_id": event.event_id,
+            "start_time": start_time,
+            "end_time": end_time,
+            "title": event.name,
+            "organizer": event.organizer,
+            "date_booked": event.date_booked.strftime('%Y-%m-%d %H:%M:%S'),
+            "event_date": event.event_date.strftime('%Y-%m-%d')
+        }
+        # Add building details
+        if event.building:
+            building_data = {
+                "building_id": event.building.building_id,
+                "name": event.building.name,
+                "description": event.building.description,
+                "history": event.building.historical_information,
+                "latitude": event.building.latitude,
+                "longitude": event.building.longitude,
+                "image_path": event.building.image_path,
+                "map_id": event.building.map_id,
+                "category": event.building.category.name,
+                "category_id": event.building.category_id,
+            }
+            event_data["building"] = building_data
+        # Add room details if available
+        if event.room:
+            room_data = {
+                "room_id": event.room.room_id,
+                "building_id": event.room.building_id,
+                "type_id": event.room.type_id,
+                "room_number": event.room.room_number,
+                "room_name": event.room.room_name,
+                "capacity": event.room.capacity
+            }
+            event_data["room"] = room_data
+        
+        if start_time not in grouped_events:
+            grouped_events[start_time] = []
+        grouped_events[start_time].append(event_data)
+        
+    return jsonify(grouped_events)
