@@ -2,7 +2,7 @@
 from app import app, db, bcrypt, mail
 from app.models import User, Building, Event, BuildingCategory, Room, RoomType
 import pymysql
-from flask import Flask, request, jsonify, url_for, render_template_string, render_template, flash
+from flask import Flask, request, jsonify, url_for, render_template_string, render_template, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
@@ -13,10 +13,16 @@ from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 import os
 
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Define route to serve images
+@app.route('/images/<path:filename>')
+def get_image(filename):
+    static_dir = os.path.join(os.path.dirname(__file__), 'static', 'images', 'building_uploads')
+    return send_from_directory(static_dir, filename)
 
 @app.route('/activate/<token>', methods=['GET'])
 def activate_user(token):
@@ -212,7 +218,7 @@ def get_buildings():
             'history': building.historical_information,
             'latitude': building.latitude,
             'longitude': building.longitude,
-            'image_path': building.image_path,
+            'image_path': f"http://127.0.0.1:5000/{building.image_path}",
             'map_id': building.map_id if building.map_id else None,
             'rooms': [
                 {
@@ -344,9 +350,16 @@ def create_building_with_image():
     # Handle file upload
     file = request.files['file']
     if file and allowed_file(file.filename):
+        # Generate a unique filename to avoid overwriting existing files
         filename = secure_filename(file.filename)
+        counter = 1
+        while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+            name, extension = os.path.splitext(file.filename)
+            filename = f"{name}_{counter}{extension}"
+            counter += 1
+        
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image_path = os.path.join('static/images/building_uploads', filename)
     else:
         return jsonify({'error': 'Invalid file or file type not allowed'}), 400
 
@@ -380,7 +393,7 @@ def get_building(building_id):
         'history': building.historical_information,
         'latitude': building.latitude,
         'longitude': building.longitude,
-        'image_path': building.image_path,
+        'image_path': f"http://127.0.0.1:5000/{building.image_path}",
         'category_id': building.category.category_id,
         'category': building.category.name if building.category else None,
         'map_id': building.map_id if building.map_id else None,
