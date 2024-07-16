@@ -1,9 +1,9 @@
-import "../../styles/navbar.css";
-import logo from '../../images/logo.png';
-import dashboard from '../../images/navIcons/dashboard.png';
-import buildings from '../../images/navIcons/buildings.png'
-import events from '../../images/navIcons/events.png'
-import logout from '../../images/navIcons/logout.png'
+import "../styles/navbar.css";
+import logo from '../images/logo.png';
+import dashboard from '../images/navIcons/dashboard.png';
+import buildings from '../images/navIcons/buildings.png'
+import events from '../images/navIcons/events.png'
+import logout from '../images/navIcons/logout.png'
 import { NavLink, useLocation } from 'react-router-dom';
 
 const NavBar = () => {

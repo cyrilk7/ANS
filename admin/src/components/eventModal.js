@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { ToastContainer, toast } from 'react-toastify';
-import buildingController from '../../controllers/buildingController';
-import eventController from '../../controllers/eventController';
+import buildingController from '../controllers/buildingController';
+import eventController from '../controllers/eventController';
 import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../../styles/event_modal.css'
+import '../styles/event_modal.css'
 
 const EventModal = (props) => {
     const { event } = props;

@@ -1,8 +1,8 @@
-import NavBar from "./components/navbar";
+import NavBar from "../components/navbar";
 import "../styles/events.css";
 import { useState, useEffect } from "react";
 import eventController from "../controllers/eventController";
-import EventModal from "./components/eventModal";
+import EventModal from "../components/eventModal";
 
 const Events = () => {
     const [events, setEvents] = useState([]);

@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import buildingTemplate from '../../images/building_template.jpeg'
-import '../../styles/offCanvas.css'
-import academicIcon from '../../images/categoryIcons/academic-icon.png'
-import buildingController from '../../controllers/buildingController';
+import buildingTemplate from '../images/building_template.jpeg'
+import '../styles/offCanvas.css'
+import academicIcon from '../images/categoryIcons/academic-icon.png'
+import buildingController from '../controllers/buildingController';
 import BuildingModal from './buildingModal';
-import editIcon from '../../images/canvasIcons/editIcon.png';
-import deleteIcon from '../../images/canvasIcons/deleteIcon.png'
-import { ToastContainer, toast } from 'react-toastify';
+import editIcon from '../images/canvasIcons/editIcon.png';
+import deleteIcon from '../images/canvasIcons/deleteIcon.png'
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -34,6 +34,8 @@ const BuildingOffCanvas = (props) => {
         try {
             const response = await buildingController.deleteBuilding(props.buildingId);
             toast.success(response.message);
+            props.onClose();
+            props.onBuildingDeleted();
         }
         catch (error) {
             console.log(error);
@@ -99,10 +101,11 @@ const BuildingOffCanvas = (props) => {
                 <BuildingModal
                     onClose={handleModalClose}
                     buildingData={building}
+                    // onBuildingChanged={props.onBuildingDeleted}
                 />
             )}
 
-            <ToastContainer />
+            {/* <ToastContainer /> */}
         </>
     );
 }

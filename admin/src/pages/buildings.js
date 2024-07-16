@@ -1,14 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css"
 import { useState, useEffect } from 'react';
 import "../styles/buildings.css";
-import NavBar from "./components/navbar";
-import BuildingModal from "./components/buildingModal";
+import NavBar from "../components/navbar";
+import BuildingModal from "../components/buildingModal";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import BuildingOffCanvas from "./components/buildingOffCanvas";
+import BuildingOffCanvas from "../components/buildingOffCanvas";
 import buildingController from "../controllers/buildingController";
 import moreIcon from '../images/moreIcon.png'
-import BuildingCard from "./components/buildingCard";
+import BuildingCard from "../components/buildingCard";
 
 
 
@@ -21,20 +21,20 @@ const Buildings = () => {
     const [isError, setError] = useState(null);
     const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
+    const loadBuildings = async () => {
+        try {
+            const buildingsData = await buildingController.fetchBuildings();
+            console.log(buildingsData);
+            setBuildings(buildingsData);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error loading buildings:', error);
+            setError(error);
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadBuildings = async () => {
-            try {
-                const buildingsData = await buildingController.fetchBuildings();
-                console.log(buildingsData);
-                setBuildings(buildingsData);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error loading buildings:', error);
-                setError(error);
-                setLoading(false);
-            }
-        };
 
         loadBuildings();
     }, []);
@@ -101,6 +101,7 @@ const Buildings = () => {
                 {showModal && (
                     <BuildingModal
                         onClose={handleModalClose}
+                        onBuildingsChanged={loadBuildings}
                     />
                 )}
 
@@ -108,6 +109,7 @@ const Buildings = () => {
                     <BuildingOffCanvas
                         buildingId={selectedBuildingId}
                         onClose={handleCanvasClose}
+                        onBuildingDeleted={loadBuildings}
                     />
                 )}
                 <ToastContainer />

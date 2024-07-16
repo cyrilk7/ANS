@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import '../../styles/userModal.css';
+import '../styles/userModal.css';
 import { ToastContainer, toast } from 'react-toastify';
-import dashboardController from '../../controllers/dashboardController';
+import dashboardController from '../controllers/dashboardController';
 
 const UserModal = (props) => {
     const { user } = props;

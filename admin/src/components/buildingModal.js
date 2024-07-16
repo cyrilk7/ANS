@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import buildingController from '../../controllers/buildingController';
-import '../../styles/building_modal.css'
-import { ToastContainer, toast } from 'react-toastify';
+import buildingController from '../controllers/buildingController';
+import '../styles/building_modal.css'
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const BuildingModal = (props) => {
@@ -94,13 +94,17 @@ const BuildingModal = (props) => {
 
                 if (isEditMode) {
                     const response = await buildingController.editBuilding(buildingId, data);
-                    toast.success(response.message)
+                    toast.success(response.message);
+                    props.onClose();
+                    // props.onBuildingsChanged();
                 }
 
                 else {
                     // console.log(formDataWithFile);
                     const response = await buildingController.createBuilding(data);
-                    toast.success(response.message)
+                    toast.success(response.message);
+                    props.onClose();
+                    props.onBuildingsChanged();
                 }
             }
             catch (error) {
@@ -187,7 +191,6 @@ const BuildingModal = (props) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <ToastContainer />
         </div>
     );
 }

@@ -5,7 +5,7 @@ import Dashboard from './pages/dashboard';
 import Events from './pages/events';
 import Buildings from './pages/buildings';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import ProtectedRoute from './pages/components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {

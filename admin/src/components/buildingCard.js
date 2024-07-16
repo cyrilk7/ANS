@@ -1,6 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import buildingTemplate from '../../images/building_template.jpeg'
+import buildingTemplate from '../images/building_template.jpeg'
 
 const BuildingCard = (props) => {
     const { building } = props;

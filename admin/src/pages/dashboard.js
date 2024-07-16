@@ -1,6 +1,6 @@
-import NavBar from "./components/navbar";
+import NavBar from "../components/navbar";
 import "../styles/dashboard.css";
-import BuildingCarousel from "./components/carousel";
+import BuildingCarousel from "../components/carousel";
 import editIcon from '../images/canvasIcons/editIcon.png';
 import deleteIcon from '../images/canvasIcons/deleteIcon.png';
 import buildingCardIcon from '../images/dashCardIcons/buildings.png';
@@ -8,9 +8,9 @@ import userCardIcon from '../images/dashCardIcons/users.png';
 import eventCardIcon from '../images/dashCardIcons/events.png';
 import { useEffect, useState } from "react";
 import dashboardController from "../controllers/dashboardController";
-import UserModal from "./components/userModal";
+import UserModal from "../components/userModal";
 import { ToastContainer, toast } from 'react-toastify';
-import UsersTable from "./components/userTable";
+import UsersTable from "../components/userTable";
 
 const Dashboard = () => {
     const [data, setData] = useState(null);

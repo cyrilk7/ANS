@@ -1,6 +1,6 @@
 import Carousel from 'react-bootstrap/Carousel';
-import ExampleCarouselImage from '../../images/building_template.jpeg'
-import "../../styles/carousel.css";
+import ExampleCarouselImage from '../images/building_template.jpeg'
+import "../styles/carousel.css";
 // import ExampleCarouselImage from 'components/ExampleCarouselImage';
 
 function BuildingCarousel() {

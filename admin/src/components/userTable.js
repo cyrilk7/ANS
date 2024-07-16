@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Pagination from 'react-bootstrap/Pagination';
-import deleteIcon from '../../images/canvasIcons/deleteIcon.png';
-import editIcon from '../../images/canvasIcons/editIcon.png';
-import "../../styles/dashboard.css";
+import deleteIcon from '../images/canvasIcons/deleteIcon.png';
+import editIcon from '../images/canvasIcons/editIcon.png';
+import "../styles/dashboard.css";
 
 const UsersTable = (props) => {
     const { users, onDelete, onModalOpen } = props;
