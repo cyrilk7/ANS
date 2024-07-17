@@ -12,8 +12,9 @@ from flask_migrate import Migrate
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 import os
+from sqlalchemy.sql.expression import func
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'svg'])
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -219,7 +220,7 @@ def get_buildings():
             'latitude': building.latitude,
             'longitude': building.longitude,
             'image_path': f"http://127.0.0.1:5000/{building.image_path}",
-            'map_id': building.map_id if building.map_id else None,
+            'map_id': building.map_id if building.map_id else '',
             'rooms': [
                 {
                     'room_id': room.room_id,
@@ -333,14 +334,15 @@ def create_building_with_image():
         return jsonify({'error': 'Missing required fields or file part in the request'}), 400
 
     # Extract building data
-    name = request.form['name']
+    building_name = request.form['name']
     description = request.form['description']
+    history = request.form['history']
     category_id = int(request.form['category_id'])
     latitude = float(request.form['latitude'])
     longitude = float(request.form['longitude'])
 
     # Check if a building with the same name exists
-    if Building.query.filter_by(name=name).first():
+    if Building.query.filter_by(name=building_name).first():
         return jsonify({'error': 'Building with the same name already exists'}), 403
 
     # Check if a building with the same latitude and longitude exists
@@ -365,12 +367,13 @@ def create_building_with_image():
 
     # Create a new building instance
     new_building = Building(
-        name=name,
+        name=building_name,
         description=description,
         latitude=latitude,
         longitude=longitude,
         image_path=image_path,
-        category_id=category_id
+        category_id=category_id,
+        historical_information=history,
     )
 
     # Add and commit the new building to the database
@@ -396,7 +399,7 @@ def get_building(building_id):
         'image_path': f"http://127.0.0.1:5000/{building.image_path}",
         'category_id': building.category.category_id,
         'category': building.category.name if building.category else None,
-        'map_id': building.map_id if building.map_id else None,
+        'map_id': building.map_id if building.map_id else '',
         'rooms': [
                 {
                     'room_number': room.room_number,
@@ -413,7 +416,7 @@ def get_building(building_id):
 
 @app.route('/buildings/<int:building_id>', methods=['PUT'])
 def edit_building(building_id):
-    data = request.get_json()
+    data = request.form
 
     building = Building.query.get(building_id)
     if not building:
@@ -429,13 +432,29 @@ def edit_building(building_id):
         building.latitude = data['latitude']
     if 'longitude' in data:
         building.longitude = data['longitude']
-    if 'image_path' in data:
-        building.image_path = data['image_path']
     if 'category_id' in data:
         category = BuildingCategory.query.get(data['category_id'])
         if not category:
             return jsonify({"error": "Category not found"}), 404
         building.category_id = data['category_id']
+
+    # Handle file upload
+    if 'file' in request.files:
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            # Generate a unique filename to avoid overwriting existing files
+            filename = secure_filename(file.filename)
+            counter = 1
+            while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+                name, extension = os.path.splitext(file.filename)
+                filename = f"{name}_{counter}{extension}"
+                counter += 1
+            
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image_path = os.path.join('static/images/building_uploads', filename)
+            building.image_path = image_path
+        else:
+            return jsonify({'error': 'Invalid file or file type not allowed'}), 400
 
     db.session.commit()
 
@@ -647,3 +666,40 @@ def get_events_by_day(day):
         grouped_events[start_time].append(event_data)
         
     return jsonify(grouped_events)
+
+
+
+
+@app.route('/random-buildings', methods=['GET'])
+def get_random_buildings():
+    buildings = Building.query.order_by(func.random()).limit(5).all()
+    results = []
+
+    for building in buildings:
+        building_info = {
+            'building_id': building.building_id,
+            'name': building.name,
+            'description': building.description,
+            'category_id': building.category.category_id,
+            'category': building.category.name,
+            'categoryImage': building.category.categoryImage,
+            'history': building.historical_information,
+            'latitude': building.latitude,
+            'longitude': building.longitude,
+            'image_path': f"http://127.0.0.1:5000/{building.image_path}",
+            'map_id': building.map_id if building.map_id else '',
+            'rooms': [
+                {
+                    'room_id': room.room_id,
+                    'room_number': room.room_number,
+                    'room_name': room.room_name,
+                    'type': room.room_type.name,
+                    'building': room.building.name,
+                    'capacity': room.capacity
+                }
+                for room in building.rooms
+            ]
+        }
+        results.append(building_info)
+
+    return jsonify(results)
