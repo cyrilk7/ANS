@@ -29,7 +29,7 @@ class _BuildingInformationPageState extends State<BuildingInformationPage> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(
+                Image.network(
                   widget.building.imagePath,
                   fit: BoxFit.cover,
                 ),

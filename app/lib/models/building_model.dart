@@ -33,8 +33,10 @@ class Building extends StatelessWidget {
       name: json['name'],
       latitude: json['latitude'],
       longitude: json['longitude'],
-      mapId: json['map_id'],
+      mapId: json['map_id'] ?? '',
     );
+
+    print(location.mapId);
 
     List<Room> rooms = [];
     if (json.containsKey('rooms') && json['rooms'] != null) {
@@ -48,7 +50,7 @@ class Building extends StatelessWidget {
       description: json['description'],
       name: json['name'],
       imagePath: json['image_path'],
-      history: json['history'],
+      history: json['history'] ?? '',
       categoryIconPath: json['categoryImage'] ?? '',
       mapId: json['map_id'] ?? '',
       location: location,
@@ -94,7 +96,7 @@ class Building extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(5),
-                    child: Image.asset(
+                    child: Image.network(
                       imagePath,
                       fit: BoxFit.cover,
                       width: 115,

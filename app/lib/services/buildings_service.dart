@@ -11,6 +11,7 @@ class BuildingService {
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
+      // print(data);
 
       // Convert the JSON data into a list of Building objects
       List<Building> buildings = data.map((json) {
@@ -18,8 +19,7 @@ class BuildingService {
       }).toList();
 
       return buildings;
-    } 
-    else {
+    } else {
       // If the server did not return a 200 OK response, throw an exception.
       throw Exception('Failed to load buildings');
     }
