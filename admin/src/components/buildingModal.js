@@ -96,7 +96,7 @@ const BuildingModal = (props) => {
                     const response = await buildingController.editBuilding(buildingId, data);
                     toast.success(response.message);
                     props.onClose();
-                    // props.onBuildingsChanged();
+                    props.onBuildingChanged();
                 }
 
                 else {

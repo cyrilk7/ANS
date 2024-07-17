@@ -35,6 +35,19 @@ const fetchBuildings = async () => {
     }
 }
 
+const fetchRandomBuildings = async () => {
+    try {
+        const response = await api.get('/random-buildings');
+        const data = response.data;
+        return data.map(buildingData => new Building(buildingData));
+
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 const getBuildingById = async (building_id) => {
     try {
         const response = await api.get(`/buildings/${building_id}`);
@@ -69,5 +82,5 @@ const deleteBuilding = async (building_id) => {
 }
 
 export default {
-    fetchCategories, createBuilding, fetchBuildings, getBuildingById, editBuilding, deleteBuilding
+    fetchCategories, createBuilding, fetchBuildings, getBuildingById, editBuilding, deleteBuilding, fetchRandomBuildings
 };

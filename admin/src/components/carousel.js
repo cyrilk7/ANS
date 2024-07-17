@@ -3,35 +3,18 @@ import ExampleCarouselImage from '../images/building_template.jpeg'
 import "../styles/carousel.css";
 // import ExampleCarouselImage from 'components/ExampleCarouselImage';
 
-function BuildingCarousel() {
+function BuildingCarousel({ buildingImages }) {
   return (
     <Carousel>
-      <Carousel.Item>
-        {/* <ExampleCarouselImage text="First slide" /> */}
-        <img src={ExampleCarouselImage} alt="" />
-        <Carousel.Caption>
-          <h3>Radichel Hall</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </p>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-        {/* <ExampleCarouselImage text="Second slide" /> */}
-        <img src={ExampleCarouselImage} alt="" />
-        <Carousel.Caption>
-          <h3>Second slide label</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-        {/* <ExampleCarouselImage text="Third slide" /> */}
-        <img src={ExampleCarouselImage} alt="" />
-        <Carousel.Caption>
-          <h3>Third slide label</h3>
-          <p>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-          </p>
-        </Carousel.Caption>
-      </Carousel.Item>
+      {buildingImages && buildingImages.map((image, index) => (
+        <Carousel.Item key={index}>
+          <img src={image.image_path} alt={`Building ${index + 1}`} />
+          <Carousel.Caption>
+            <h3>{image.name}</h3>
+            <p>{image.category.name}</p>
+          </Carousel.Caption>
+        </Carousel.Item>
+      ))}
     </Carousel>
   );
 }

@@ -1,8 +1,6 @@
 import NavBar from "../components/navbar";
 import "../styles/dashboard.css";
 import BuildingCarousel from "../components/carousel";
-import editIcon from '../images/canvasIcons/editIcon.png';
-import deleteIcon from '../images/canvasIcons/deleteIcon.png';
 import buildingCardIcon from '../images/dashCardIcons/buildings.png';
 import userCardIcon from '../images/dashCardIcons/users.png';
 import eventCardIcon from '../images/dashCardIcons/events.png';
@@ -11,28 +9,54 @@ import dashboardController from "../controllers/dashboardController";
 import UserModal from "../components/userModal";
 import { ToastContainer, toast } from 'react-toastify';
 import UsersTable from "../components/userTable";
+import buildingController from "../controllers/buildingController";
 
 const Dashboard = () => {
     const [data, setData] = useState(null);
+    const [buildingImages, setBuildingimages] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await dashboardController.getDashboardStatistics();
-                // console.log(response);
-                setData(response);
-                setIsLoading(false);
-            } catch (error) {
-                console.log(error);
-                setIsLoading(false); // Ensure loading state is updated even if there's an error
-            }
+    const loadBuildingImages = async () => {
+        try {
+            const buildingsData = await buildingController.fetchRandomBuildings();
+            setBuildingimages(buildingsData);
+            // console.log(buildingsData);
+            // setBuildings(buildingsData);
+            // setLoading(false);
+        } catch (error) {
+            console.error('Error loading buildings:', error);
+            // setError(error);
+            // setLoading(false);
         }
-        fetchData();
-    }, [])
+    };
+
+
+    const fetchData = async () => {
+        try {
+            const response = await dashboardController.getDashboardStatistics();
+            // console.log(response);
+            setData(response);
+            // setIsLoading(false);
+        } catch (error) {
+            console.log(error);
+            // setIsLoading(false); // Ensure loading state is updated even if there's an error
+        }
+    }
+
+    // useEffect(() => {
+    //     fetchData();
+    //     loadBuildingImages();
+    // }, [])
+    useEffect(() => {
+        const loadData = async () => {
+            await Promise.all([fetchData(), loadBuildingImages()]);
+            setIsLoading(false);
+        };
+
+        loadData();
+    }, []);
 
     if (isLoading) {
         return <div>Loading...</div>; // You can replace this with a spinner or any other loading indicator
@@ -109,7 +133,7 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                                 <div className="carousel-container">
-                                    <BuildingCarousel />
+                                    <BuildingCarousel buildingImages={buildingImages} />
                                 </div>
                             </div>
                             <div className="dash-top-right">

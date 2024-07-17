@@ -24,7 +24,7 @@ const Buildings = () => {
     const loadBuildings = async () => {
         try {
             const buildingsData = await buildingController.fetchBuildings();
-            console.log(buildingsData);
+            // console.log(buildingsData);
             setBuildings(buildingsData);
             setLoading(false);
         } catch (error) {
@@ -109,7 +109,7 @@ const Buildings = () => {
                     <BuildingOffCanvas
                         buildingId={selectedBuildingId}
                         onClose={handleCanvasClose}
-                        onBuildingDeleted={loadBuildings}
+                        onBuildingsChanged={loadBuildings}
                     />
                 )}
                 <ToastContainer />

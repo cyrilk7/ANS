@@ -29,35 +29,40 @@ const BuildingOffCanvas = (props) => {
     const handleModalClose = () => {
         setShowModal(false);
     };
+    
+    const handleBuildingChange = () => {
+        loadBuilding();
+        props.onBuildingsChanged();
+    };
 
     const handleDeleteBuilding = async () => {
         try {
             const response = await buildingController.deleteBuilding(props.buildingId);
             toast.success(response.message);
             props.onClose();
-            props.onBuildingDeleted();
+            props.onBuildingsChanged();
         }
         catch (error) {
             console.log(error);
         }
     }
 
-    useEffect(() => {
-        const loadBuilding = async () => {
-            try {
-                const building = await buildingController.getBuildingById(props.buildingId);
-                console.log(building);
-                // console.log(building);
-                setBuilding(building);
-                
-                // setLoading(false);
-            } catch (error) {
-                console.error('Error loading building:', error);
-                // setError(error);
-                // setLoading(false);
-            }
-        };
+    const loadBuilding = async () => {
+        try {
+            const building = await buildingController.getBuildingById(props.buildingId);
+            console.log(building);
+            // console.log(building);
+            setBuilding(building);
+            
+            // setLoading(false);
+        } catch (error) {
+            console.error('Error loading building:', error);
+            // setError(error);
+            // setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadBuilding();
     }, [props.buildingId]);
 
@@ -101,7 +106,7 @@ const BuildingOffCanvas = (props) => {
                 <BuildingModal
                     onClose={handleModalClose}
                     buildingData={building}
-                    // onBuildingChanged={props.onBuildingDeleted}
+                    onBuildingChanged={handleBuildingChange}
                 />
             )}
 
