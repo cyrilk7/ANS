@@ -1,0 +1,4 @@
+# .gitignore
+venv/
+.env
+artlink-56f38-firebase-adminsdk-2th85-a12925cada.json

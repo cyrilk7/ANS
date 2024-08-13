@@ -1,0 +1,13 @@
+functions-framework
+Flask
+PyMySQL
+flask_sqlalchemy
+flask_bcrypt
+Flask-Mail
+python-dotenv
+flask_cors
+Flask-Migrate
+Flask-Uploads
+Werkzeug
+sshtunnel
+firebase_admin

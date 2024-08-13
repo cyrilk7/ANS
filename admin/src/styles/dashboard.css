@@ -1,0 +1,243 @@
+.dashboard-cont{
+    height: 100vh;
+    display: flex;
+}
+
+.dashboard-cont .dash-left{
+    height: 100%;
+    width: 21%;
+}
+
+.dashboard-cont .dash-right{
+    width: 79%;
+    /* margin-bottom: rem; */
+    /* background-color:; */
+    /* height: 100%; */
+    /* border: 1px solid red; */
+}
+
+.dashboard-cont .dash-right h1{
+    color: #AA3C3F;
+    font-weight: 900;
+    text-align: left;
+}
+
+.dashboard-cont .dash-right h1 span{
+    color: black;
+}
+
+
+.dashboard-cont .dash-right .dash-title-row{
+    padding: 1rem 1rem 0 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.dashboard-cont .dash-right .dash-right-top{
+    /* border: 1px solid red; */
+    padding: 1rem 1rem 0 1rem;
+    display: flex;
+    gap: 1rem;
+    height: 54%;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left{
+    flex-basis: 70%;
+    /* border: 1px solid blue; */
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row{
+    display: flex;
+    justify-content: space-between;
+    /* border: 1px solid black; */
+    height: 24%;
+    margin-bottom: 1rem;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .carousel-container{
+    /* border: 1px solid brown; */
+    height: 76%;
+    /* max-height: 400px !important; */
+}
+
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card{
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 32%;
+    height: 100%;
+    border-radius: 7px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card .dash-card-icon{
+    background-color: #F5EBED;
+    border-radius: 50%;
+    display: flex;
+    width: 3rem;
+    height: 3rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card .dash-card-icon img{
+    width: 60%;
+    height: 60%;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card .dash-card-left{
+    text-align: left;
+
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card .dash-card-left h6{
+    /* border: 1px solid red; */
+    margin-bottom: 0.4rem;
+    font-size: 1rem !important;
+    font-weight: bold;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card .dash-card-left h3{
+    /* border: 1px solid red; */
+    margin-bottom: 0.4rem;
+    font-weight: 900;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-left .dash-card-row .dash-card .dash-card-left p{
+    /* border: 1px solid red; */
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: gray;
+}
+
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-right{
+    flex-basis: 30%;
+    /* border: 1px solid brown; */
+}
+
+.dashboard-cont .dash-right .dash-right-bottom{
+    /* border: 1px solid green; */
+    height: 30%;
+    padding: 1rem;
+}
+
+.dashboard-cont .dash-right .dash-right-bottom h5{
+    text-align: left;
+    font-weight: bold;
+}
+
+.user-table-row{
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+
+}
+
+.user-table-row button{
+    background-color: #AA3C3F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem;
+    font-weight: bold;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-right .upcoming-event-card{
+    /* border: 1px solid red; */
+    height: 100%;
+    padding: 1rem;
+    border-radius: 7px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+.dashboard-cont .dash-right .dash-right-top .dash-top-right .upcoming-event-card h5{
+    text-align: left;
+    font-weight: bold;
+
+}
+
+.dash-right-bottom .user-table{
+    /* border: 1px solid red; */
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 7px;
+    /* padding: 1rem; */
+    background-color: #f9f9f9;
+}
+
+
+.dash-right-bottom .user-table h5{
+    text-align: left;
+    font-weight: bold
+
+}
+
+table{
+    width: 100%;
+    /* background-color: #f9f9f9; */
+
+}
+
+tr{
+    height: 1rem;
+}
+
+th, td{
+    border-bottom: 1px solid #dddddd !important;
+    text-align: left !important;
+    padding: 8px;
+    font-size: 0.9rem;
+    background-color: #f9f9f9 !important;
+    /* height: 40px; */
+}
+
+.status-active{
+    background-color: #D1EAD2;
+    padding: 0.3rem 1rem;
+    color: #87C98A;
+    font-weight: bold;
+    border-radius: 15px;
+    display: inline-block;
+}
+
+.status-inactive{
+    background-color: #F5CFCC;
+    padding: 0.3rem 1rem;
+    color: #E7877E;
+    font-weight: bold;
+    border-radius: 15px;
+    display: inline-block;
+}
+
+.operation-icons{
+    display: flex;
+    gap: 0.5rem;
+    height: 1.2rem;
+}
+
+.pagination .page-link {
+    color: #AA3C3F; /* Example of a more specific selector */
+}
+
+/* customStyles.css */
+
+.pagination {
+    --bs-pagination-active-bg: #AA3C3F !important; /* Background color for active page */
+    --bs-pagination-active-border-color: #AA3C3F !important; /* Border color for active page */
+    --bs-pagination-active-color: white; /* Text color for active page */
+
+    --bs-pagination-link-bg: white; /* Background color for page links */
+    --bs-pagination-link-border-color: #AA3C3F !important; /* Border color for page links */
+    --bs-pagination-link-hover-bg: #AA3C3F !important; /* Background color on hover */
+    --bs-pagination-link-hover-color: white; /* Text color on hover */
+    --bs-pagination-link-hover-border-color: #AA3C3F !important; /* Border color on hover */
+    --bs-pagination-link-color: #AA3C3F !important; /* Text color for page links */
+}

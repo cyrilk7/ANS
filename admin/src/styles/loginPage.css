@@ -1,0 +1,128 @@
+.login-container{
+    display: flex;
+    height: 100vh;
+}
+
+.login-container .left{
+    flex-basis: 55%;
+    background-color: #FFF9F9;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0rem 5rem 0 5rem;
+}
+
+.login-container .right .img-cont{
+    width: 100%;
+
+}
+
+.login-container .right{
+    flex-basis: 45%;
+    padding: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* border: 1px solid red; */
+}
+
+.login-container .left h1{
+    color: #AA3C3F;
+    width: 100%;
+    text-align: left;
+    font-style: italic;
+    font-weight: 900;
+    line-height: 2.4rem;
+    margin-bottom: 1rem;
+}
+
+.login-container .left .loginSvg-container{
+    width: 60%;
+}
+
+.login-container .left h5{
+    text-align: left;
+    color: #867E7E;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.login-container .right h1{
+    color: #AA3C3F;
+    font-style: italic;
+    font-weight: 900;
+}
+
+.login-container .right h1 span{
+    color: black;
+
+}
+
+.login-container .right h5{
+    color: #AA3C3F;
+    font-size: 1em;
+
+}
+
+.login-container .right input{
+    width: 100%;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border: 1px solid #263238;
+    border-radius: 7px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.login-container .right .remember-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.login-container .right h5 a{
+    text-decoration: none;
+    color: #AA3C3F;
+    
+    
+}
+
+.login-container .right h5{
+    margin: 0;
+    
+}
+
+
+.login-container .right .remember-row .remember-cont{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.login-container .right .remember-row .remember-cont h5{
+    min-width: 140px;
+    margin: 0;
+    text-align: left;
+    color: #867E7E;
+}
+
+
+.login-container .right .remember-row .remember-cont input{
+    margin: 0;
+
+}
+
+.login-container .right .login-btn{
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1.7rem;
+    border: none;
+    border-radius: 7px;
+    color: white;
+    font-weight: bold;
+    background-color: #AA3C3F;
+}
+

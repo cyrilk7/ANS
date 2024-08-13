@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link href="https://cdn.jsdelivr.net/npm/@mappedin/mappedin-js@6.0.1-alpha.4/lib/index.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    #mappedin-map {
+      height: 100%;
+      width: 100%;
+      position: relative;
+    }
+  </style>
+  <title>Mappedin Web SDK v6 Getting Started with JSDelivr</title>
+</head>
+
+<body>
+  <div id="mappedin-map"></div>
+  <script type="module">
+    import {
+      getMapData,
+      show3dMap
+    } from "https://cdn.jsdelivr.net/npm/@mappedin/mappedin-js@6.0.1-alpha.4/lib/esm/index.js";
+
+    // See Trial API key Terms and Conditions
+    const options = {
+      key: "6634ff8b8004177ee42bcd0e",
+      secret: "282be7103a8c149c8eb88fbd193793bbca10307afb94e5cba26305a751c3cf40",
+      mapId: "{{MAP_ID}}"
+    }
+
+    var mapData = await getMapData(options);
+    var mapView = await show3dMap(document.getElementById("mappedin-map"), mapData);
+
+    mapView.Labels.all();
+
+    // Get the spaces for the first and second spaces to navigate to and from.
+    const firstSpace = mapData.getByType('space').find(s => s.name === "{{START_SPACE}}");
+    // const secondSpace = mapData.getByType('space').find(s => s.name === "{{END_SPACE}}");
+
+    // const firstSpace = mapData.getByType('space').find(s => s.name === 'Room 107');
+    const secondSpace = mapData.getByType('space').find(s => s.name === '{{END_SPACE}}');
+
+    // Ensure that the spaces exist.
+    if (firstSpace && secondSpace) {
+      const directions = mapView.getDirections(firstSpace, secondSpace);
+
+      if (directions) {
+        // Add a path from the first space to the second space.
+        mapView.Navigation.draw(directions);
+      }
+    }
+
+
+
+  </script>
+</body>
+
+</html>
